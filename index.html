@@ -107,12 +107,6 @@ img,svg{display:block}
 .nav a.active::before{content:"";position:absolute;left:-16px;top:11px;bottom:11px;width:3px;border-radius:0 4px 4px 0;background:var(--nc);box-shadow:0 0 14px var(--nc)}
 .nav .count{margin-left:auto;min-width:26px;height:22px;padding:0 7px;display:grid;place-items:center;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--muted)}
 .nav a.active .count{color:var(--text)}
-.side-foot{margin-top:auto}
-.status-card{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);text-decoration:none}
-.status-card .s-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--sc) 16%,transparent);color:var(--sc);flex:none}
-.status-card b{display:block;font-size:13.5px;line-height:1.3}
-.status-card small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
-.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--sc);box-shadow:0 0 0 3px color-mix(in srgb,var(--sc) 25%,transparent);margin-right:6px;vertical-align:1px}
 
 .main{min-width:0;padding:30px clamp(20px,3vw,40px) 64px;max-width:1360px;width:100%;margin:0 auto}
 .topbar{display:none}
@@ -421,28 +415,9 @@ kbd{font-family:var(--font-body);font-size:11.5px;font-weight:700;padding:2px 7p
 .set-ic{--c:var(--blue);width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
 .set-head h2{font-size:17px;font-weight:700}
 .set-head p{color:var(--muted);font-size:13.5px}
-.set-head .status{margin-left:auto}
-.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.mode-card{--c:var(--blue);position:relative;display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:18px;border:1px solid var(--line-2);background:var(--panel-2);text-align:left;cursor:pointer;transition:border-color .25s,background .25s,transform .15s}
-.mode-card:hover{border-color:var(--line-3)}
-.mode-card:active{transform:scale(.99)}
-.mode-card.on{border-color:color-mix(in srgb,var(--c) 60%,transparent);background:color-mix(in srgb,var(--c) 8%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 14%,transparent)}
-.mode-card .set-ic{width:38px;height:38px}
-.mode-card b{display:block;font-size:15px}
-.mode-card small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
-.mode-card .tick{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;opacity:0;transform:scale(.6);transition:opacity .2s,transform .25s var(--ease)}
-.mode-card.on .tick{opacity:1;transform:scale(1)}
-.mode-card .tick .ic{width:13px;height:13px;stroke-width:3}
-.fb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
 .set-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
 .note{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:13px;margin-top:14px;line-height:1.45}
 .note .ic{margin-top:1px;color:var(--blue)}
-.account{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);margin-top:16px;flex-wrap:wrap}
-.account .grow{flex:1;min-width:180px}
-.account small{display:block;color:var(--muted);font-size:12.5px;word-break:break-all}
-details.rules{margin-top:16px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2)}
-details.rules summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:14px;color:var(--text-2)}
-details.rules pre{margin:0 14px 14px;padding:14px;border-radius:12px;background:var(--code-bg);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;overflow-x:auto;color:var(--text-2)}
 .seg{display:inline-flex;gap:2px;padding:4px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line)}
 .seg button{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:10px;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;transition:background .2s,color .2s}
 .seg button:hover{color:var(--text)}
@@ -468,10 +443,9 @@ details.rules pre{margin:0 14px 14px;padding:14px;border-radius:12px;background:
 @media (max-width:1180px){
   .app{grid-template-columns:84px minmax(0,1fr)}
   .sidebar{padding:22px 12px;align-items:center}
-  .wordmark,.nav a .lbl,.nav .count,.status-card .s-txt{display:none}
+  .wordmark,.nav a .lbl,.nav .count{display:none}
   .nav a{justify-content:center;padding:0;width:52px}
   .nav a.active::before{left:-12px}
-  .status-card{padding:8px}
   .shelf{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
   .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .toolbar{grid-template-columns:1fr 1fr 1fr}
@@ -480,7 +454,6 @@ details.rules pre{margin:0 14px 14px;padding:14px;border-radius:12px;background:
 @media (max-width:1020px){
   .grid-2{grid-template-columns:1fr}
   .hero{grid-template-columns:1fr}
-  .fb-grid{grid-template-columns:1fr 1fr}
 }
 
 /* ---------- responsive: mobile layout ---------- */
@@ -536,10 +509,9 @@ details.rules pre{margin:0 14px 14px;padding:14px;border-radius:12px;background:
   .modal-foot .spacer{display:none}
   .form-grid{grid-template-columns:1fr}
   .input{height:48px;font-size:16px}
-  .settings-grid{grid-template-columns:1fr}
-  .mode-cards,.fb-grid,.data-btns{grid-template-columns:1fr}
+  .settings-grid{grid-template-columns:minmax(0,1fr)}
+  .data-btns{grid-template-columns:1fr}
   .set-head{flex-wrap:wrap}
-  .set-head .status{margin-left:0}
   .seg{display:flex}
   .seg button{flex:1;justify-content:center;padding:0 8px}
   .specs{grid-template-columns:1fr 1fr}
@@ -573,13 +545,11 @@ details.rules pre{margin:0 14px 14px;padding:14px;border-radius:12px;background:
   <aside class="sidebar" aria-label="Sidebar">
     <a class="brandmark" href="#/dashboard" data-logo="side"></a>
     <nav class="nav" id="side-nav" aria-label="Main navigation"></nav>
-    <div class="side-foot" id="side-status"></div>
   </aside>
 
   <header class="topbar">
     <a class="brandmark" href="#/dashboard" data-logo="top"></a>
     <div class="topbar-right">
-      <a class="icon-btn" id="top-status" href="#/settings" aria-label="Data source"></a>
       <button class="icon-btn" data-action="toggle-theme" id="top-theme" aria-label="Switch theme"></button>
     </div>
   </header>
@@ -620,9 +590,11 @@ details.rules pre{margin:0 14px 14px;padding:14px;border-radius:12px;background:
    To go live with Firebase:
      a) Create a Firebase project, enable Authentication (Anonymous only)
         and Cloud Firestore.
-     b) Paste your web keys into FIREBASE_CONFIG below, or into Settings → Data source.
-     c) Serve this file from an authorised domain (Firebase Hosting, localhost…).
-     d) Switch Settings → Data source to “Firebase cloud”.
+     b) Paste your web keys into FIREBASE_CONFIG below.
+     c) Publish these Firestore rules:
+          match /vaults/{vaultId}/{collection}/{docId} {
+            allow read, write: if request.auth != null;
+          }
    Shared vault, no login: every device reads and writes the same data at
    vaults/{VAULT_ID}/{brands|categories|cars}/{id}. Anonymous auth runs silently
    in the background so Firestore rules can require request.auth != null.
@@ -642,10 +614,6 @@ const FIREBASE_CONFIG = {
 };
 const FIREBASE_SDK_VERSION = '10.12.2';
 const VAULT_ID = 'main'; // one shared vault for every device
-const FIREBASE_FIELDS = [
-  ['apiKey', 'API key'], ['authDomain', 'Auth domain'], ['projectId', 'Project ID'],
-  ['storageBucket', 'Storage bucket'], ['messagingSenderId', 'Messaging sender ID'], ['appId', 'App ID']
-];
 
 const COLLECTIONS = ['brands', 'categories', 'cars'];
 const KINDS = {
@@ -795,26 +763,21 @@ class FirebaseAdapter {
 
 /* ---------- Settings (always stored on this device) ---------- */
 const Settings = {
-  defaults: { mode: 'local', theme: 'dark', reduceMotion: false, migrate: true, firebase: {} },
+  defaults: { theme: 'dark', reduceMotion: false },
   data: null,
   load() {
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem(APP.settingsKey) || '{}') || {}; } catch { saved = {}; }
-    // When real Firebase keys are in FIREBASE_CONFIG, the cloud is the default data source.
-    const mode = FirebaseAdapter.isConfigured(FIREBASE_CONFIG) ? 'firebase' : 'local';
-    this.data = { ...this.defaults, mode, ...saved, firebase: { ...(saved.firebase || {}) } };
+    this.data = { theme: saved.theme || this.defaults.theme, reduceMotion: !!saved.reduceMotion };
     return this.data;
   },
   save(patch) {
     Object.assign(this.data, patch);
     try { localStorage.setItem(APP.settingsKey, JSON.stringify(this.data)); } catch { /* storage blocked */ }
-  },
-  firebaseConfig() {
-    const out = { ...FIREBASE_CONFIG };
-    Object.entries(this.data.firebase || {}).forEach(([k, v]) => { if (norm(v)) out[k] = norm(v); });
-    return out;
   }
 };
+// Firebase is used whenever real keys are present in FIREBASE_CONFIG; otherwise the app stays on LocalStorage.
+const DATA_MODE = () => FirebaseAdapter.isConfigured(FIREBASE_CONFIG) ? 'firebase' : 'local';
 
 /* ---------- 5. Store ---------- */
 function sanitize(d) {
@@ -855,7 +818,7 @@ const Store = {
 
   /** Connect to a backend. Only swaps the active adapter once the new one is ready. */
   async connect(mode, { seedFrom = null } = {}) {
-    const adapter = mode === 'firebase' ? new FirebaseAdapter(Settings.firebaseConfig()) : new LocalStorageAdapter(APP.dataKey);
+    const adapter = mode === 'firebase' ? new FirebaseAdapter(FIREBASE_CONFIG) : new LocalStorageAdapter(APP.dataKey);
     await adapter.init();
     let data = await adapter.load();
     if (mode === 'firebase') {
@@ -1449,54 +1412,12 @@ Views.category = detailView('category');
 <script>
 'use strict';
 /* ---------- Settings view ---------- */
-const FIRESTORE_RULES = `rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /vaults/{vaultId}/{collection}/{docId} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}`;
-
 Views.settings = {
   title: 'Settings',
   render() {
-    const st = Settings.data, s = Store.state;
-    const fb = Store.mode === 'firebase';
-    const cfg = Settings.firebaseConfig();
-    const theme = st.theme;
-    const val = k => (cfg[k] && !/^YOUR_/i.test(cfg[k])) ? cfg[k] : '';
-    return pageHead('Settings', 'Choose where your vault lives, how it looks, and manage your data.') + `
+    const st = Settings.data, s = Store.state, theme = st.theme;
+    return pageHead('Settings', 'Choose how the app looks and manage your data.') + `
     <div class="settings-grid">
-      <section class="panel span-2">
-        <div class="set-head">
-          <span class="set-ic" style="--c:#3D7BFF">${ic('db')}</span>
-          <div><h2>Data source</h2><p>Switch storage without losing anything. The app works fully offline on this device.</p></div>
-          <span class="pill status" style="--sc:${fb ? '#2EC4B6' : '#3CCB8B'}"><span class="live-dot"></span>${fb ? 'Synced with Firebase' : (Store.adapter && Store.adapter.memoryOnly ? 'Temporary (storage blocked)' : 'Saved on this device')}</span>
-        </div>
-        <div class="set-body">
-          <div class="mode-cards" role="radiogroup" aria-label="Data source">
-            <button class="mode-card ${fb ? '' : 'on'}" style="--c:#3CCB8B" role="radio" aria-checked="${!fb}" data-action="set-mode" data-mode="local">
-              <span class="set-ic" style="--c:#3CCB8B">${ic('db')}</span><span><b>This device</b><small>LocalStorage. Instant, private and offline. No account needed.</small></span><span class="tick">${ic('check')}</span></button>
-            <button class="mode-card ${fb ? 'on' : ''}" style="--c:#2EC4B6" role="radio" aria-checked="${fb}" data-action="set-mode" data-mode="firebase">
-              <span class="set-ic" style="--c:#2EC4B6">${ic('cloud')}</span><span><b>Firebase cloud</b><small>One shared vault in Cloud Firestore. Every device sees the same data, no login.</small></span><span class="tick">${ic('check')}</span></button>
-          </div>
-
-          <form id="fb-form" novalidate>
-            <div class="fb-grid">${FIREBASE_FIELDS.map(([k, l]) => `<div class="field"><label class="lbl" for="fb-${k}">${l}</label><input class="input" id="fb-${k}" name="${k}" value="${esc(val(k))}" placeholder="${esc(FIREBASE_CONFIG[k])}" autocomplete="off" spellcheck="false"></div>`).join('')}</div>
-            <label class="check" style="margin-top:16px;accent-color:var(--blue)"><input type="checkbox" id="fb-migrate" ${st.migrate ? 'checked' : ''} style="accent-color:var(--blue)"> Copy this device’s vault to Firebase if the cloud vault is empty</label>
-            <div class="set-actions">
-              <button type="button" class="btn" data-action="save-fb">${ic('check', 'sm')}Save keys</button>
-              <button type="button" class="btn btn-primary" data-action="set-mode" data-mode="firebase">${ic('cloud', 'sm')}${fb ? 'Reconnect to Firebase' : 'Connect to Firebase'}</button>
-              ${fb ? `<button type="button" class="btn btn-ghost" data-action="set-mode" data-mode="local">Use this device instead</button>` : ''}
-            </div>
-          </form>
-
-          <p class="note">${ic('info', 'sm')}<span>No login is needed. Every device that opens this app shares the vault stored at <b>vaults/${VAULT_ID}</b>, and changes appear on other devices within seconds. Anyone who has the app’s link can see and edit this vault.</span></p>
-          <details class="rules"><summary>Recommended Firestore security rules</summary><pre>${esc(FIRESTORE_RULES)}</pre></details>
-        </div>
-      </section>
-
       <section class="panel">
         <div class="set-head"><span class="set-ic" style="--c:#E0459B">${ic('sparkle')}</span><div><h2>Appearance</h2><p>Theme and motion</p></div></div>
         <div class="set-body">
@@ -1517,7 +1438,7 @@ Views.settings = {
             <button class="btn" data-action="import">${ic('upload', 'sm')}Import backup</button>
             <button class="btn btn-danger" style="grid-column:1/-1" data-action="erase-all">${ic('trash', 'sm')}Erase everything</button>
           </div>
-          <p class="note">${ic('info', 'sm')}<span>Backups are JSON files you can import on any device, in either data source.</span></p>
+          <p class="note">${ic('info', 'sm')}<span>A backup is a JSON file you can import again at any time.</span></p>
         </div>
       </section>
 
@@ -1528,7 +1449,6 @@ Views.settings = {
             <dt>Add a car</dt><dd><kbd>N</kbd></dd>
             <dt>Search the collection</dt><dd><kbd>/</kbd></dd>
             <dt>Close a dialog</dt><dd><kbd>Esc</kbd></dd>
-            <dt>Storage key on this device</dt><dd>${APP.dataKey}</dd>
           </dl>
         </div>
       </section>
@@ -1868,15 +1788,6 @@ function updateChrome(route) {
     const n = NAV.find(x => x.id === a.dataset.nav), c = a.querySelector('.count');
     if (c && n.count) c.textContent = n.count();
   });
-  const fb = Store.mode === 'firebase';
-  const mem = Store.adapter && Store.adapter.memoryOnly;
-  const sc = fb ? '#2EC4B6' : mem ? '#F2B544' : '#3CCB8B';
-  $('#side-status').innerHTML = `<a class="status-card" href="#/settings" style="--sc:${sc}" title="Data source">
-    <span class="s-ic">${ic(fb ? 'cloud' : 'db', 'sm')}</span>
-    <span class="s-txt"><b><span class="live-dot"></span>${fb ? 'Synced with Firebase' : mem ? 'Temporary storage' : 'Saved on this device'}</b>
-    <small>${fb ? 'Cloud Firestore' : mem ? 'Browser storage is blocked' : 'LocalStorage, works offline'}</small></span></a>`;
-  $('#top-status').innerHTML = ic(fb ? 'cloud' : 'db');
-  $('#top-status').style.color = sc;
   $('#top-theme').innerHTML = ic(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun');
 }
 
@@ -1948,37 +1859,8 @@ function applyTheme() {
 mqLight.addEventListener && mqLight.addEventListener('change', () => { if (Settings.data.theme === 'system') { applyTheme(); updateChrome(UI.route); } });
 
 /* =============================================================================
-   Data source switching, import / export
+   Import / export
    ============================================================================= */
-function readFirebaseForm() {
-  const form = $('#fb-form'); if (!form) return null;
-  const out = {};
-  FIREBASE_FIELDS.forEach(([k]) => { out[k] = norm(form.elements[k].value); });
-  return out;
-}
-
-async function switchMode(mode, btn) {
-  if (mode === 'firebase') {
-    const keys = readFirebaseForm();
-    if (keys) Settings.save({ firebase: keys, migrate: $('#fb-migrate') ? $('#fb-migrate').checked : Settings.data.migrate });
-    if (!FirebaseAdapter.isConfigured(Settings.firebaseConfig())) {
-      Toast.show('Add your Firebase API key, auth domain, project ID and app ID, then connect.', 'warn', { duration: 6000 });
-      const first = FIREBASE_FIELDS.map(([k]) => $(`#fb-${k}`)).find(i => i && !i.value);
-      if (first) first.focus();
-      return;
-    }
-  } else if (Store.mode === 'local') { return; }
-  if (btn) btn.classList.add('loading');
-  try {
-    await Store.connect(mode, { seedFrom: mode === 'firebase' && Settings.data.migrate ? clone(Store.state) : null });
-    Settings.save({ mode });
-    Toast.show(mode === 'firebase' ? 'Connected. Your vault now syncs with Firebase.' : 'Switched to this device. Your vault is stored in LocalStorage.', 'success');
-  } catch (err) {
-    console.error(err);
-    Toast.show(`Couldn’t connect to Firebase. ${esc(err.message || err)} Your vault stays on this device.`, 'error', { duration: 8000 });
-  } finally { if (btn && btn.isConnected) btn.classList.remove('loading'); }
-}
-
 function exportData() {
   const payload = { app: APP.name, version: APP.version, exportedAt: new Date().toISOString(), ...clone(Store.state) };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -2051,19 +1933,13 @@ const Actions = {
     if ($('#f-q', v)) { $('#f-q', v).value = ''; $('#f-brand', v).value = ''; $('#f-category', v).value = ''; }
     refreshResults();
   },
-  'set-mode': el => switchMode(el.dataset.mode, el.classList.contains('btn') ? el : null),
-  'save-fb': () => {
-    const keys = readFirebaseForm();
-    Settings.save({ firebase: keys, migrate: $('#fb-migrate').checked });
-    Toast.show(FirebaseAdapter.isConfigured(Settings.firebaseConfig()) ? 'Firebase keys saved on this device.' : 'Keys saved. Fill in the remaining required fields to connect.', FirebaseAdapter.isConfigured(Settings.firebaseConfig()) ? 'success' : 'info');
-  },
   'set-theme': el => { Settings.save({ theme: el.dataset.theme }); applyTheme(); render(false); },
   'toggle-theme': () => { Settings.save({ theme: document.documentElement.dataset.theme === 'light' ? 'dark' : 'light' }); applyTheme(); render(false); },
   'export': () => exportData(),
   'import': () => { const f = $('#import-file'); f.value = ''; f.click(); },
   'erase-all': async () => {
     const n = Store.state.cars.length;
-    if (!(await confirmDialog({ title: 'Erase everything?', message: `This permanently deletes ${plural(n, 'car')}, every brand and every category from the current data source. Export a backup first if you might need it.`, confirm: 'Erase vault', danger: true }))) return;
+    if (!(await confirmDialog({ title: 'Erase everything?', message: `This permanently deletes ${plural(n, 'car')}, every brand and every category, on every device. Export a backup first if you might need it.`, confirm: 'Erase vault', danger: true }))) return;
     const res = await Store.replaceAll(emptyState());
     Toast.show(res.ok ? 'Your vault is now empty.' : esc(res.error), res.ok ? 'info' : 'error');
   }
@@ -2117,7 +1993,6 @@ document.addEventListener('change', e => {
   else if (t.id === 'f-category') { UI.filters.category = t.value; refreshResults(); }
   else if (t.id === 'f-sort') { UI.filters.sort = t.value; refreshResults(); }
   else if (t.id === 'set-motion') { Settings.save({ reduceMotion: t.checked }); applyTheme(); Toast.show(t.checked ? 'Motion reduced.' : 'Animations are back on.', 'info'); }
-  else if (t.id === 'fb-migrate') { Settings.save({ migrate: t.checked }); }
   else if (t.id === 'import-file' && t.files && t.files[0]) importFile(t.files[0]);
 });
 
@@ -2130,11 +2005,11 @@ async function boot() {
   renderChrome();
   const t0 = performance.now();
   let warn = null;
-  try { await Store.connect(Settings.data.mode); }
+  try { await Store.connect(DATA_MODE()); }
   catch (err) {
     console.warn('Falling back to LocalStorage:', err);
     await Store.connect('local');
-    warn = `Firebase couldn’t be reached, so your vault opened from this device. ${esc(err.message || err)}`;
+    warn = `Couldn’t reach the cloud, so changes are saved on this device for now. ${esc(err.message || err)}`;
   }
   if (Store.adapter.memoryOnly) warn = 'This browser blocks storage, so changes last only until you close the tab.';
   if (!location.hash) history.replaceState(null, '', '#/dashboard');
