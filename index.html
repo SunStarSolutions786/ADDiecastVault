@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-motion="full">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D1220">
+<title>ADDiecastVault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   ADDiecastVault — design tokens
+   Palette: gunmetal enamel base, chrome text, "spectraflame" candy accents
+   (magenta → violet → blue → teal), the metallic paint diecast collectors know.
+   ========================================================================== */
+:root{
+  --font-body:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --font-display:'Unbounded','Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --magenta:#E0459B; --violet:#8B5CF6; --blue:#3D7BFF; --teal:#2EC4B6; --gold:#F2B544;
+  --danger:#F0566A; --success:#3CCB8B; --warn:#F2B544;
+  --spectra:linear-gradient(100deg,#E0459B 0%,#8B5CF6 34%,#3D7BFF 66%,#2EC4B6 100%);
+  --spectra-v:linear-gradient(180deg,#E0459B,#8B5CF6 45%,#3D7BFF 75%,#2EC4B6);
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --blur:blur(18px) saturate(150%);
+  --r-shell:24px; --r-card:18px; --r-ctl:12px;
+}
+:root,[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0D1220; --bg-2:#10172A;
+  --panel:rgba(22,29,46,.66); --panel-solid:#161D2E; --panel-2:rgba(255,255,255,.035);
+  --line:rgba(215,222,234,.08); --line-2:rgba(215,222,234,.14); --line-3:rgba(215,222,234,.24);
+  --text:#E8EDF5; --text-2:#C3CCDA; --muted:#8E9AB0; --faint:#5E6A80;
+  --hover:rgba(255,255,255,.045); --active-bg:rgba(255,255,255,.075);
+  --input-bg:rgba(8,12,22,.55); --modal-bg:#131A2A; --toast-bg:rgba(24,31,49,.94);
+  --glass:rgba(13,18,32,.55); --glass-strong:rgba(15,21,36,.84);
+  --shadow:0 24px 50px -28px rgba(0,0,0,.75); --code-bg:rgba(0,0,0,.32);
+  --tire:#121722; --hub:#C9D2DF; --hole:#0D1220; --blob-o:.24;
+}
+[data-theme="light"]{
+  color-scheme:light;
+  --bg:#ECEFF5; --bg-2:#E4E8F0;
+  --panel:rgba(255,255,255,.74); --panel-solid:#FFFFFF; --panel-2:rgba(15,23,42,.03);
+  --line:rgba(15,23,42,.08); --line-2:rgba(15,23,42,.13); --line-3:rgba(15,23,42,.22);
+  --text:#141A28; --text-2:#323B4F; --muted:#5B667B; --faint:#8C96A8;
+  --hover:rgba(15,23,42,.045); --active-bg:rgba(61,123,255,.09);
+  --input-bg:#FFFFFF; --modal-bg:#FFFFFF; --toast-bg:rgba(255,255,255,.96);
+  --glass:rgba(255,255,255,.6); --glass-strong:rgba(255,255,255,.86);
+  --shadow:0 20px 44px -26px rgba(15,23,42,.28); --code-bg:#F1F4F9;
+  --tire:#252C3A; --hub:#DDE3EC; --hole:#ECEFF5; --blob-o:.16;
+}
+
+/* ---------- base ---------- */
+*,*::before,*::after{box-sizing:border-box}
+*{margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);font-size:15px;line-height:1.5;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+body.modal-open{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+img,svg{display:block}
+.display{font-family:var(--font-display)}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.sm{width:16px;height:16px}
+.ic.lg{width:24px;height:24px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:10px}
+::selection{background:rgba(224,69,155,.35)}
+[hidden]{display:none!important}
+
+/* ---------- ambient background ---------- */
+.backdrop-fx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.blob{position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(90px);opacity:var(--blob-o);will-change:transform}
+.b1{background:#E0459B;top:-18vmax;right:-12vmax;animation:drift1 38s ease-in-out infinite alternate}
+.b2{background:#3D7BFF;bottom:-22vmax;left:-14vmax;animation:drift2 44s ease-in-out infinite alternate}
+.b3{background:#2EC4B6;top:38%;left:46%;width:30vmax;height:30vmax;opacity:calc(var(--blob-o)*.6);animation:drift3 52s ease-in-out infinite alternate}
+.grid-fx{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 0%,transparent 70%);mask-image:radial-gradient(ellipse at 50% 0%,#000 0%,transparent 70%);opacity:.55}
+@keyframes drift1{to{transform:translate(-8vmax,10vmax) scale(1.08)}}
+@keyframes drift2{to{transform:translate(10vmax,-6vmax) scale(1.12)}}
+@keyframes drift3{to{transform:translate(-12vmax,-8vmax) scale(.9)}}
+
+/* ---------- splash ---------- */
+#splash{position:fixed;inset:0;z-index:400;display:grid;place-items:center;background:var(--bg);transition:opacity .45s ease,visibility .45s}
+#splash.hide{opacity:0;visibility:hidden}
+.splash-inner{display:flex;flex-direction:column;align-items:center;gap:18px}
+.splash-inner .logo{width:68px;height:68px;animation:breathe 1.6s ease-in-out infinite}
+.splash-word{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.splash-bar{width:180px;height:4px;border-radius:4px;background:var(--line-2);overflow:hidden}
+.splash-bar span{display:block;height:100%;width:40%;border-radius:4px;background:var(--spectra);animation:load 1.1s var(--ease) infinite}
+@keyframes breathe{50%{transform:scale(1.06)}}
+@keyframes load{from{transform:translateX(-110%)}to{transform:translateX(260%)}}
+
+/* ---------- app shell ---------- */
+.app{display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:26px;padding:22px 16px;background:var(--glass);border-right:1px solid var(--line);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);z-index:20}
+.brandmark{display:flex;align-items:center;gap:12px;padding:4px 8px;text-decoration:none}
+.logo{width:40px;height:40px;flex:none}
+.wordmark{font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:1.15;background:linear-gradient(180deg,var(--text) 30%,var(--muted));-webkit-background-clip:text;background-clip:text;color:transparent}
+.wordmark small{display:block;font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:0;margin-top:3px;-webkit-text-fill-color:var(--muted);color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{--nc:var(--blue);position:relative;display:flex;align-items:center;gap:12px;height:46px;padding:0 14px;border-radius:13px;color:var(--muted);text-decoration:none;font-weight:600;font-size:14.5px;transition:color .2s,background .2s}
+.nav a:hover{color:var(--text);background:var(--hover)}
+.nav a .ic{transition:color .2s,transform .3s var(--ease)}
+.nav a:hover .ic{transform:translateX(1px) scale(1.06)}
+.nav a.active{color:var(--text);background:var(--active-bg);box-shadow:inset 0 0 0 1px var(--line)}
+.nav a.active .ic{color:var(--nc)}
+.nav a.active::before{content:"";position:absolute;left:-16px;top:11px;bottom:11px;width:3px;border-radius:0 4px 4px 0;background:var(--nc);box-shadow:0 0 14px var(--nc)}
+.nav .count{margin-left:auto;min-width:26px;height:22px;padding:0 7px;display:grid;place-items:center;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--muted)}
+.nav a.active .count{color:var(--text)}
+.side-foot{margin-top:auto}
+.status-card{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);text-decoration:none}
+.status-card .s-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--sc) 16%,transparent);color:var(--sc);flex:none}
+.status-card b{display:block;font-size:13.5px;line-height:1.3}
+.status-card small{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--sc);box-shadow:0 0 0 3px color-mix(in srgb,var(--sc) 25%,transparent);margin-right:6px;vertical-align:1px}
+
+.main{min-width:0;padding:30px clamp(20px,3vw,40px) 64px;max-width:1360px;width:100%;margin:0 auto}
+.topbar{display:none}
+.bottomnav,.fab{display:none}
+.view.enter{animation:viewIn .38s var(--ease) both}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}}
+
+/* ---------- page header ---------- */
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;margin-bottom:24px}
+.page-title{font-family:var(--font-display);font-weight:600;font-size:clamp(23px,2.5vw,31px);letter-spacing:-.025em;line-height:1.15}
+.page-sub{color:var(--muted);margin-top:6px;font-size:15px}
+.head-actions{display:flex;gap:10px;flex-wrap:wrap}
+.mt{margin-top:18px}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--line-2);background:var(--panel-2);color:var(--text);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;text-decoration:none;transition:transform .15s var(--ease),background .2s,border-color .2s,box-shadow .25s,opacity .2s}
+.btn:hover{background:var(--hover);border-color:var(--line-3)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-primary{border:0;color:#fff;background:var(--spectra);background-size:180% 100%;background-position:0 0;box-shadow:0 12px 26px -12px rgba(224,69,155,.7),inset 0 1px 0 rgba(255,255,255,.28);transition:background-position .5s var(--ease),transform .15s var(--ease),box-shadow .25s}
+.btn-primary:hover{background-position:100% 0;box-shadow:0 14px 30px -12px rgba(61,123,255,.75),inset 0 1px 0 rgba(255,255,255,.28)}
+.btn-danger{color:var(--danger);background:rgba(240,86,106,.1);border-color:rgba(240,86,106,.3)}
+.btn-danger:hover{background:rgba(240,86,106,.16);border-color:rgba(240,86,106,.5)}
+.btn-danger-solid{border:0;color:#fff;background:linear-gradient(135deg,#F0566A,#D63B6E);box-shadow:0 12px 24px -12px rgba(240,86,106,.8)}
+.btn-ghost{background:transparent;border-color:transparent}
+.btn.loading{pointer-events:none;opacity:.85}
+.btn.loading::after{content:"";width:15px;height:15px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.icon-btn{width:36px;height:36px;display:inline-grid;place-items:center;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .15s}
+.icon-btn:hover{background:var(--hover);color:var(--text);border-color:var(--line)}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn.danger:hover{color:var(--danger);background:rgba(240,86,106,.1);border-color:rgba(240,86,106,.25)}
+.link-btn{display:inline-flex;align-items:center;gap:6px;color:var(--text-2);font-weight:600;font-size:14px;text-decoration:none;padding:6px 10px;border-radius:10px;transition:background .2s,color .2s}
+.link-btn:hover{background:var(--hover);color:var(--text)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-shell);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);box-shadow:var(--shadow)}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px 0}
+.panel-head h2{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.panel-head p{color:var(--muted);font-size:13.5px;margin-top:2px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+
+/* ---------- chips & pills ---------- */
+.chip{--c:#9AA6B8;display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 11px;border-radius:999px;background:color-mix(in srgb,var(--c) 13%,transparent);border:1px solid color-mix(in srgb,var(--c) 30%,transparent);color:color-mix(in srgb,var(--c) 68%,var(--text));font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;text-decoration:none;max-width:100%;transition:background .2s,transform .15s,border-color .2s}
+.chip:hover{background:color-mix(in srgb,var(--c) 22%,transparent);border-color:color-mix(in srgb,var(--c) 50%,transparent)}
+.chip:active{transform:scale(.96)}
+.chip .dot,.dot{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.chip span.t{overflow:hidden;text-overflow:ellipsis}
+.chip.static{cursor:default}
+.chip .n{opacity:.7;font-weight:500}
+.pill{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line-2);font-size:13px;font-weight:600;color:var(--text-2);cursor:default;max-width:100%}
+button.pill{cursor:pointer;transition:background .2s}
+button.pill:hover{background:var(--hover)}
+.pill .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill-up{color:var(--success);border-color:rgba(60,203,139,.3);background:rgba(60,203,139,.08)}
+
+/* ---------- dashboard hero ---------- */
+.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:28px;align-items:end;padding:32px 34px;border-radius:28px;border:1px solid var(--line-2);background:radial-gradient(120% 140% at 0% 0%,rgba(224,69,155,.16),transparent 55%),radial-gradient(120% 140% at 100% 100%,rgba(46,196,182,.12),transparent 55%),var(--panel);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);box-shadow:var(--shadow)}
+.hero::after{content:"";position:absolute;left:-10%;right:-10%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
+.hero-count{font-family:var(--font-display);font-weight:700;font-size:clamp(76px,10vw,136px);line-height:.88;letter-spacing:-.06em;background:var(--spectra);background-size:220% 100%;background-position:0 0;-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:.06em;font-variant-numeric:tabular-nums}
+.play .hero-count{animation:shine 2.4s var(--ease) both}
+@keyframes shine{from{background-position:100% 0}to{background-position:0 0}}
+.hero-cap{font-size:17px;color:var(--text-2);max-width:36ch;margin-top:12px;line-height:1.45}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.hero-chart{min-width:0}
+.hero-chart-cap{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:8px}
+.area svg{width:100%;height:auto;overflow:visible}
+.area .a-line{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.area .a-pt{stroke:var(--panel-solid);stroke-width:2.5}
+.area .a-lbl{fill:var(--muted);font-size:11px;font-family:var(--font-body);font-weight:600}
+.area .a-val{fill:var(--text-2);font-size:11px;font-family:var(--font-body);font-weight:700}
+.area .a-base{stroke:var(--line-2);stroke-dasharray:3 4}
+.play .a-line{stroke-dasharray:1;animation:draw 1.5s var(--ease) .15s both}
+.play .a-fill{animation:fade 1.2s ease .5s both}
+.play .a-dots{animation:fade .6s ease 1.1s both}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes fade{from{opacity:0}}
+
+/* ---------- stat cards ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:18px}
+.stat{--c:var(--blue);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:18px 18px 16px;border-radius:var(--r-card);background:var(--panel);border:1px solid var(--line);text-align:left;cursor:pointer;-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);transition:transform .25s var(--ease),border-color .25s,box-shadow .25s}
+.stat::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--c);opacity:.9}
+.stat::after{content:"";position:absolute;width:140px;height:140px;right:-50px;top:-60px;border-radius:50%;background:var(--c);opacity:.09;filter:blur(10px);transition:opacity .3s}
+.stat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--c) 40%,var(--line));box-shadow:0 18px 34px -22px color-mix(in srgb,var(--c) 80%,transparent)}
+.stat:hover::after{opacity:.18}
+.stat-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c);margin-bottom:10px}
+.stat-val{font-family:var(--font-display);font-size:24px;font-weight:600;letter-spacing:-.03em;line-height:1.2;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-label{color:var(--muted);font-size:13.5px}
+.play .stat{animation:rise .55s var(--ease) both;animation-delay:calc(var(--i,0) * 70ms + 150ms)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+
+/* ---------- showcase shelf (blister cards) ---------- */
+.shelf{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;padding:18px 22px 22px}
+.blister{--c:#9AA6B8;position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;padding:24px 14px 14px;border-radius:18px 18px 14px 14px;text-align:left;cursor:pointer;border:1px solid color-mix(in srgb,var(--c) 28%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--c) 24%,var(--panel-solid)) 0%,var(--panel-solid) 72%);transition:transform .3s var(--ease),box-shadow .3s,border-color .3s}
+.blister::before{content:"";position:absolute;top:9px;left:50%;width:28px;height:7px;transform:translateX(-50%);border-radius:6px;background:var(--hole);box-shadow:inset 0 1px 2px rgba(0,0,0,.45)}
+.blister:hover{transform:translateY(-5px) rotate(-.4deg);border-color:color-mix(in srgb,var(--c) 55%,var(--line));box-shadow:0 22px 34px -20px color-mix(in srgb,var(--c) 85%,transparent)}
+.b-brand{font-size:12px;font-weight:700;color:color-mix(in srgb,var(--c) 70%,var(--text));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bubble{position:relative;display:grid;place-items:center;height:78px;border-radius:14px;color:var(--c);background:radial-gradient(130% 90% at 25% 0%,rgba(255,255,255,.2),rgba(255,255,255,.03) 55%,transparent);border:1px solid rgba(255,255,255,.09);overflow:hidden}
+.bubble::after{content:"";position:absolute;top:-30%;left:-60%;width:40%;height:160%;transform:rotate(18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);transition:left .7s var(--ease)}
+.blister:hover .bubble::after{left:130%}
+.car-sil{width:86%;max-width:150px;height:auto;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35));transition:transform .4s var(--ease)}
+.blister:hover .car-sil{transform:translateX(4px)}
+.b-name{font-weight:700;font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+.b-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}
+.mini-chip{--c:#9AA6B8;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:color-mix(in srgb,var(--c) 70%,var(--text));min-width:0}
+.mini-chip .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini-chip .dot{width:6px;height:6px}
+.b-date{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.play .blister{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0) * 45ms + 350ms)}
+
+/* ---------- donut & bars ---------- */
+.donut-wrap{display:grid;grid-template-columns:200px minmax(0,1fr);gap:22px;align-items:center;padding:18px 22px 22px}
+.donut{position:relative;width:200px;height:200px}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut .track{fill:none;stroke:var(--panel-2);stroke-width:22}
+.donut .seg{fill:none;stroke-width:22;cursor:pointer;transition:stroke-width .25s var(--ease),opacity .25s}
+.donut.hovering .seg{opacity:.35}
+.donut.hovering .seg.on{opacity:1;stroke-width:26}
+.play .donut .seg{animation:dash 1.3s var(--ease) both;animation-delay:calc(var(--i,0) * 60ms + 200ms)}
+@keyframes dash{from{stroke-dasharray:0 440}}
+.donut-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+.donut-center b{font-family:var(--font-display);font-size:30px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.donut-center small{color:var(--muted);font-size:12.5px;margin-top:4px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legend{list-style:none;padding:0;display:flex;flex-direction:column;gap:2px;min-width:0}
+.legend button{--c:#9AA6B8;width:100%;display:grid;grid-template-columns:10px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;border:0;background:transparent;cursor:pointer;text-align:left;font-size:14px;transition:background .2s}
+.legend button:hover,.legend button.on{background:var(--hover)}
+.legend .dot{width:10px;height:10px;border-radius:3px}
+.legend .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.legend .num{font-weight:700;font-variant-numeric:tabular-nums}
+.legend .pc{color:var(--muted);font-size:12.5px;width:40px;text-align:right;font-variant-numeric:tabular-nums}
+.bars{display:flex;flex-direction:column;gap:6px;padding:16px 22px 22px}
+.bar-row{--c:#9AA6B8;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:9px 10px;border-radius:12px;border:0;background:transparent;cursor:pointer;text-align:left;transition:background .2s}
+.bar-row:hover{background:var(--hover)}
+.bar-row .name{display:flex;align-items:center;gap:9px;font-weight:600;font-size:14px;min-width:0}
+.bar-row .name .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-row .num{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.bar-row .num small{color:var(--muted);font-weight:500;margin-left:6px}
+.bar-track{display:block;grid-column:1/-1;height:8px;border-radius:8px;background:var(--panel-2);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+.bar-fill{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 55%,transparent),var(--c));transform-origin:left;box-shadow:0 0 12px color-mix(in srgb,var(--c) 50%,transparent)}
+.play .bar-fill{animation:grow 1s var(--ease) both;animation-delay:calc(var(--i,0) * 70ms + 250ms)}
+@keyframes grow{from{transform:scaleX(0)}}
+
+/* ---------- toolbar & inputs ---------- */
+.toolbar{display:grid;grid-template-columns:minmax(220px,1fr) repeat(3,minmax(140px,190px)) auto;gap:10px;padding:12px;border-radius:20px;margin-bottom:14px}
+.input{width:100%;height:44px;padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--line-2);background:var(--input-bg);color:var(--text);font-size:14.5px;transition:border-color .2s,box-shadow .2s,background .2s}
+.input::placeholder{color:var(--faint)}
+.input:hover{border-color:var(--line-3)}
+.input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(61,123,255,.18)}
+textarea.input{height:auto;min-height:86px;padding:11px 14px;resize:vertical;line-height:1.45}
+select.input{appearance:none;-webkit-appearance:none;padding-right:38px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238E9AB0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px}
+select.input option{background:var(--panel-solid);color:var(--text)}
+.search{position:relative;display:block}
+.search .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search .input{padding-left:40px}
+.results-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:13.5px;margin:4px 4px 12px}
+.results-meta b{color:var(--text)}
+kbd{font-family:var(--font-body);font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:6px;border:1px solid var(--line-2);border-bottom-width:2px;background:var(--panel-2);color:var(--text-2)}
+
+/* ---------- tables (desktop) ---------- */
+.table-wrap{overflow-x:auto}
+.dt{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px}
+.dt th{text-align:left;font-size:12.5px;font-weight:600;color:var(--muted);padding:14px 16px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.dt th.r,.dt td.r{text-align:right}
+.dt td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+.dt tbody tr{cursor:pointer;transition:background .15s}
+.dt tbody tr:hover{background:var(--hover)}
+.dt tbody tr:last-child td{border-bottom:0}
+.dt .muted{color:var(--muted)}
+.car-cell{display:flex;align-items:center;gap:12px;min-width:0}
+.car-thumb{--c:#9AA6B8;width:52px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 28%,transparent)}
+.car-thumb .car-sil{width:40px;filter:none}
+.car-cell b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34ch}
+.car-cell small{display:block;color:var(--muted);font-size:12.5px}
+.row-actions{white-space:nowrap;text-align:right}
+.row-actions .icon-btn{opacity:.6}
+.dt tbody tr:hover .row-actions .icon-btn,.row-actions .icon-btn:focus-visible{opacity:1}
+.tx-cell{display:flex;align-items:center;gap:12px;font-weight:700}
+.tx-swatch{--c:#9AA6B8;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 35%,transparent)}
+.share{display:flex;align-items:center;gap:10px;min-width:150px}
+.share-track{flex:1;height:6px;border-radius:6px;background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.share-track span{display:block;height:100%;border-radius:6px;background:var(--c)}
+.share small{width:38px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.num-cell{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ---------- mobile cards ---------- */
+.mobile-only{display:none!important}
+.mcards{display:grid;gap:12px}
+.mcard{--c:#9AA6B8;position:relative;overflow:hidden;padding:14px 14px 14px 18px;border-radius:18px;background:var(--panel);border:1px solid var(--line);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur)}
+.mcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.mcard-top{display:flex;align-items:center;gap:12px;cursor:pointer}
+.mcard-top .grow{min-width:0;flex:1}
+.mcard-top b{display:block;font-size:15.5px;font-weight:700;line-height:1.3}
+.mcard-top small{color:var(--muted);font-size:12.5px}
+.mcard-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.mcard-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.mcard-actions .btn{height:44px;font-size:13.5px;padding:0 10px}
+.mcard-actions.two{grid-template-columns:repeat(2,1fr)}
+.mcard .share{margin-top:12px}
+
+/* ---------- taxonomy detail hero ---------- */
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;margin-bottom:14px;padding:6px 10px 6px 4px;border-radius:10px;transition:color .2s,background .2s}
+.back:hover{color:var(--text);background:var(--hover)}
+.tx-hero{--c:#9AA6B8;position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 30px;align-items:end;padding:30px 32px;border-radius:28px;border:1px solid color-mix(in srgb,var(--c) 32%,var(--line));background:radial-gradient(110% 140% at 0% 0%,color-mix(in srgb,var(--c) 30%,transparent),transparent 60%),var(--panel);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);box-shadow:var(--shadow)}
+.tx-hero::after{content:"";position:absolute;right:-60px;bottom:-90px;width:300px;height:300px;border-radius:50%;background:var(--c);opacity:.12;filter:blur(30px)}
+.tx-kind{display:inline-flex;align-items:center;gap:8px;color:color-mix(in srgb,var(--c) 70%,var(--text));font-weight:700;font-size:14px}
+.tx-name{font-size:clamp(28px,4vw,46px);font-weight:600;letter-spacing:-.035em;line-height:1.05;margin-top:10px;word-break:break-word}
+.tx-sub{color:var(--text-2);margin-top:10px;font-size:15.5px}
+.tx-count{position:relative;z-index:1;text-align:right}
+.tx-count b{display:block;font-family:var(--font-display);font-size:clamp(56px,7vw,92px);font-weight:700;letter-spacing:-.06em;line-height:.9;color:var(--c);font-variant-numeric:tabular-nums}
+.tx-count small{color:var(--muted);font-size:14px}
+.tx-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:10px;position:relative;z-index:1}
+.chips-row{display:flex;flex-wrap:wrap;gap:8px;padding:16px 22px 22px}
+
+/* ---------- empty states ---------- */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:52px 22px}
+.empty svg.ill{width:190px;height:auto;margin-bottom:18px}
+.empty h3{font-size:18px;font-weight:700}
+.empty p{color:var(--muted);max-width:42ch;margin:6px 0 18px}
+.empty .head-actions{justify-content:center}
+
+/* ---------- modal ---------- */
+.backdrop{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:20px;background:rgba(5,8,16,.58);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:fade .2s ease both}
+.backdrop.closing{animation:fadeOut .18s ease both}
+.backdrop.closing .modal{animation:popOut .18s ease both}
+@keyframes fadeOut{to{opacity:0}}
+.modal{position:relative;width:min(580px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:24px;border:1px solid var(--line-2);background:var(--modal-bg);box-shadow:0 40px 90px -30px rgba(0,0,0,.75);animation:pop .32s cubic-bezier(.2,.9,.25,1.15) both}
+.modal.sm{width:min(440px,100%)}
+.modal::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--spectra);opacity:.9}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}}
+@keyframes popOut{to{opacity:0;transform:translateY(8px) scale(.98)}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 22px 0}
+.modal-title{font-size:19px;font-weight:700;letter-spacing:-.015em}
+.modal-body{padding:18px 22px 22px}
+.modal-foot{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;padding:0 22px 22px}
+.modal-foot .spacer{flex:1}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field.full{grid-column:1/-1}
+.lbl{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;color:var(--text-2);margin-bottom:7px}
+.lbl small{color:var(--faint);font-weight:500}
+.err{color:var(--danger);font-size:12.5px;margin-top:6px;display:flex;gap:6px;align-items:center}
+.err:empty{display:none}
+.field.invalid .input{border-color:var(--danger);box-shadow:0 0 0 4px rgba(240,86,106,.14)}
+.field.invalid{animation:shake .35s ease}
+@keyframes shake{25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.swatch{position:relative;cursor:pointer}
+.swatch input{position:absolute;opacity:0;pointer-events:none}
+.swatch span{display:block;width:36px;height:36px;border-radius:12px;background:var(--c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),inset 0 8px 12px -6px rgba(255,255,255,.4);transition:transform .2s var(--ease),box-shadow .2s}
+.swatch:hover span{transform:translateY(-2px)}
+.swatch input:checked+span{box-shadow:0 0 0 3px var(--modal-bg),0 0 0 5px var(--c);transform:scale(1.04)}
+.swatch input:focus-visible+span{outline:2px solid var(--blue);outline-offset:6px}
+.preview-chip{margin-top:14px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
+
+.confirm{display:flex;gap:14px;align-items:flex-start}
+.confirm-ic{width:44px;height:44px;flex:none;border-radius:14px;display:grid;place-items:center;background:rgba(61,123,255,.14);color:var(--blue)}
+.confirm.is-danger .confirm-ic{background:rgba(240,86,106,.14);color:var(--danger)}
+.confirm p{color:var(--text-2);padding-top:2px}
+.warn-box{display:flex;gap:12px;padding:14px;border-radius:14px;background:rgba(242,181,68,.09);border:1px solid rgba(242,181,68,.3);color:var(--text-2)}
+.warn-box .ic{color:var(--gold);margin-top:2px}
+.warn-box b{color:var(--text);display:block}
+.affected{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 6px}
+.opt{display:flex;gap:12px;padding:14px;border-radius:16px;border:1px solid var(--line-2);margin-top:10px;cursor:pointer;transition:border-color .2s,background .2s}
+.opt:hover{background:var(--hover)}
+.opt input[type=radio]{margin-top:3px;accent-color:var(--blue);width:18px;height:18px;flex:none}
+.opt.selected{border-color:var(--blue);background:rgba(61,123,255,.07)}
+.opt.danger.selected{border-color:var(--danger);background:rgba(240,86,106,.07)}
+.opt .opt-body{flex:1;min-width:0}
+.opt b{display:block}
+.opt small{display:block;color:var(--muted);margin-top:2px}
+.opt .opt-extra{margin-top:10px}
+.check{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--text-2);cursor:pointer}
+.check input{width:18px;height:18px;margin-top:1px;accent-color:var(--danger);flex:none}
+.showcase{--c:#9AA6B8;position:relative;overflow:hidden;display:grid;place-items:center;height:190px;border-radius:20px;color:var(--c);background:radial-gradient(90% 120% at 50% 110%,color-mix(in srgb,var(--c) 45%,transparent),transparent 65%),linear-gradient(180deg,color-mix(in srgb,var(--c) 14%,var(--panel-solid)),var(--panel-solid));border:1px solid color-mix(in srgb,var(--c) 30%,var(--line))}
+.showcase::before{content:"";position:absolute;left:12%;right:12%;bottom:34px;height:10px;border-radius:50%;background:rgba(0,0,0,.45);filter:blur(8px)}
+.showcase .car-sil{width:62%;max-width:300px;position:relative;animation:roll .7s var(--ease) both}
+@keyframes roll{from{transform:translateX(-30px);opacity:0}}
+.showcase-name{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:-.025em;line-height:1.2;margin:18px 0 4px}
+.specs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.spec{padding:12px 14px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);min-width:0}
+.spec dt{color:var(--muted);font-size:12.5px;margin-bottom:6px}
+.spec dd{font-weight:700}
+.spec.full{grid-column:1/-1}
+.spec dd.notes{font-weight:500;color:var(--text-2);white-space:pre-wrap}
+
+/* ---------- toasts ---------- */
+.toasts{position:fixed;right:22px;bottom:22px;z-index:300;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none}
+.toast{--tc:var(--success);pointer-events:auto;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;min-width:290px;max-width:400px;padding:12px 12px 12px 14px;border-radius:16px;background:var(--toast-bg);border:1px solid var(--line-2);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);box-shadow:0 22px 44px -22px rgba(0,0,0,.6);animation:toastIn .4s cubic-bezier(.2,.9,.25,1.2) both}
+.toast.out{animation:toastOut .25s ease both}
+.t-ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--tc) 16%,transparent);color:var(--tc)}
+.t-msg{flex:1;font-size:14px;font-weight:500;line-height:1.4}
+.t-act{border:0;background:transparent;color:var(--blue);font-weight:700;font-size:14px;cursor:pointer;padding:6px 8px;border-radius:8px}
+.t-act:hover{background:var(--hover)}
+.t-x{border:0;background:transparent;color:var(--muted);cursor:pointer;width:28px;height:28px;display:grid;place-items:center;border-radius:8px}
+.t-x:hover{background:var(--hover);color:var(--text)}
+.t-bar{position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--tc);transform-origin:left;animation:shrink linear both}
+.t-error{--tc:var(--danger)} .t-info{--tc:var(--blue)} .t-warn{--tc:var(--gold)}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.96)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(30px)}}
+@keyframes shrink{to{transform:scaleX(0)}}
+
+/* ---------- settings ---------- */
+.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.span-2{grid-column:1/-1}
+.set-body{padding:18px 22px 22px}
+.set-head{display:flex;align-items:center;gap:14px;padding:20px 22px 0}
+.set-ic{--c:var(--blue);width:42px;height:42px;border-radius:13px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.set-head h2{font-size:17px;font-weight:700}
+.set-head p{color:var(--muted);font-size:13.5px}
+.set-head .status{margin-left:auto}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mode-card{--c:var(--blue);position:relative;display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:18px;border:1px solid var(--line-2);background:var(--panel-2);text-align:left;cursor:pointer;transition:border-color .25s,background .25s,transform .15s}
+.mode-card:hover{border-color:var(--line-3)}
+.mode-card:active{transform:scale(.99)}
+.mode-card.on{border-color:color-mix(in srgb,var(--c) 60%,transparent);background:color-mix(in srgb,var(--c) 8%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 14%,transparent)}
+.mode-card .set-ic{width:38px;height:38px}
+.mode-card b{display:block;font-size:15px}
+.mode-card small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.mode-card .tick{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;opacity:0;transform:scale(.6);transition:opacity .2s,transform .25s var(--ease)}
+.mode-card.on .tick{opacity:1;transform:scale(1)}
+.mode-card .tick .ic{width:13px;height:13px;stroke-width:3}
+.fb-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.set-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;align-items:center}
+.note{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:13px;margin-top:14px;line-height:1.45}
+.note .ic{margin-top:1px;color:var(--blue)}
+.account{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);margin-top:16px;flex-wrap:wrap}
+.account .grow{flex:1;min-width:180px}
+.account small{display:block;color:var(--muted);font-size:12.5px;word-break:break-all}
+details.rules{margin-top:16px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2)}
+details.rules summary{cursor:pointer;padding:12px 14px;font-weight:600;font-size:14px;color:var(--text-2)}
+details.rules pre{margin:0 14px 14px;padding:14px;border-radius:12px;background:var(--code-bg);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;overflow-x:auto;color:var(--text-2)}
+.seg{display:inline-flex;gap:2px;padding:4px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line)}
+.seg button{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:10px;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;transition:background .2s,color .2s}
+.seg button:hover{color:var(--text)}
+.seg button.on{background:var(--active-bg);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.set-row:first-child{border-top:0;padding-top:0}
+.set-row b{display:block;font-size:14.5px}
+.set-row small{display:block;color:var(--muted);font-size:13px}
+.switch{position:relative;width:50px;height:30px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0;z-index:1}
+.switch span{position:absolute;inset:0;border-radius:999px;background:var(--line-2);transition:background .25s}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.3);transition:transform .25s var(--ease)}
+.switch input:checked+span{background:var(--blue)}
+.switch input:checked+span::after{transform:translateX(20px)}
+.switch input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+.data-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.data-btns .btn{justify-content:flex-start}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{font-weight:600;text-align:right}
+
+/* ---------- responsive: compact sidebar ---------- */
+@media (max-width:1180px){
+  .app{grid-template-columns:84px minmax(0,1fr)}
+  .sidebar{padding:22px 12px;align-items:center}
+  .wordmark,.nav a .lbl,.nav .count,.status-card .s-txt{display:none}
+  .nav a{justify-content:center;padding:0;width:52px}
+  .nav a.active::before{left:-12px}
+  .status-card{padding:8px}
+  .shelf{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .toolbar{grid-template-columns:1fr 1fr 1fr}
+  .toolbar .search{grid-column:1/-1}
+}
+@media (max-width:1020px){
+  .grid-2{grid-template-columns:1fr}
+  .hero{grid-template-columns:1fr}
+  .fb-grid{grid-template-columns:1fr 1fr}
+}
+
+/* ---------- responsive: mobile layout ---------- */
+@media (max-width:860px){
+  body{font-size:15.5px}
+  .app{grid-template-columns:minmax(0,1fr)}
+  .sidebar{display:none}
+  .desktop-only{display:none!important}
+  .mobile-only{display:grid!important}
+  .topbar{display:flex;position:sticky;top:0;z-index:40;align-items:center;justify-content:space-between;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;background:var(--glass-strong);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-bottom:1px solid var(--line)}
+  .topbar .brandmark{padding:0}
+  .topbar .logo{width:34px;height:34px}
+  .topbar .wordmark{display:block;font-size:14px}
+  .topbar .wordmark small{display:none}
+  .topbar-right{display:flex;align-items:center;gap:6px}
+  .main{padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 128px)}
+  .page-head{margin-bottom:18px;align-items:flex-start}
+  .page-head .head-actions .btn-primary{display:none}
+  .bottomnav{display:flex;position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:60;height:68px;padding:0 6px;border-radius:22px;background:var(--glass-strong);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--line-2);box-shadow:0 18px 40px -16px rgba(0,0,0,.55)}
+  .bottomnav a{--nc:var(--blue);flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);text-decoration:none;font-size:11px;font-weight:600;border-radius:16px;min-width:0;-webkit-tap-highlight-color:transparent}
+  .bottomnav a .ic{transition:transform .3s var(--ease),color .2s}
+  .bottomnav a.active{color:var(--text)}
+  .bottomnav a.active .ic{color:var(--nc);transform:translateY(-1px)}
+  .bottomnav a.active::before{content:"";position:absolute;top:6px;width:30px;height:3px;border-radius:3px;background:var(--nc);box-shadow:0 0 12px var(--nc)}
+  .fab{display:grid;place-items:center;position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:61;width:58px;height:58px;border-radius:19px;border:0;color:#fff;background:var(--spectra);box-shadow:0 16px 30px -10px rgba(224,69,155,.75),inset 0 1px 0 rgba(255,255,255,.3);cursor:pointer;transition:transform .2s var(--ease)}
+  .fab:active{transform:scale(.92)}
+  .fab .ic{width:26px;height:26px;stroke-width:2.2}
+  .toasts{left:12px;right:12px;bottom:auto;top:calc(env(safe-area-inset-top,0px) + 66px);align-items:stretch}
+  .toast{min-width:0;max-width:none}
+  .hero{padding:24px 20px;border-radius:24px;gap:20px}
+  .hero-count{font-size:88px}
+  .hero-cap{font-size:16px}
+  .stats{gap:12px}
+  .stat{padding:14px}
+  .stat-val{font-size:19px}
+  .shelf{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding:16px 16px 20px;scrollbar-width:none}
+  .shelf::-webkit-scrollbar{display:none}
+  .blister{flex:0 0 58%;scroll-snap-align:start}
+  .panel-head{padding:18px 16px 0}
+  .donut-wrap{grid-template-columns:1fr;justify-items:center;padding:16px}
+  .legend{width:100%}
+  .bars{padding:14px 12px 16px}
+  .toolbar{grid-template-columns:1fr 1fr;padding:10px;border-radius:18px}
+  .toolbar .search{grid-column:1/-1}
+  .toolbar .btn,.toolbar .sort{grid-column:1/-1}
+  .tx-hero{grid-template-columns:1fr;padding:24px 20px}
+  .tx-count{text-align:left}
+  .tx-actions .btn{flex:1}
+  .backdrop{place-items:end stretch;padding:0}
+  .modal,.modal.sm{width:100%;max-height:92vh;border-radius:26px 26px 0 0;padding-bottom:env(safe-area-inset-bottom,0px);animation:sheetUp .36s var(--ease) both}
+  .backdrop.closing .modal{animation:sheetDown .2s ease both}
+  .modal-foot .btn{flex:1;height:48px}
+  .modal-foot .spacer{display:none}
+  .form-grid{grid-template-columns:1fr}
+  .input{height:48px;font-size:16px}
+  .settings-grid{grid-template-columns:1fr}
+  .mode-cards,.fb-grid,.data-btns{grid-template-columns:1fr}
+  .set-head{flex-wrap:wrap}
+  .set-head .status{margin-left:0}
+  .seg{display:flex}
+  .seg button{flex:1;justify-content:center;padding:0 8px}
+  .specs{grid-template-columns:1fr 1fr}
+}
+@keyframes sheetUp{from{transform:translateY(100%)}}
+@keyframes sheetDown{to{transform:translateY(100%)}}
+@media (max-width:380px){ .blister{flex-basis:70%} .stats{grid-template-columns:1fr 1fr} .hero-count{font-size:72px} }
+
+/* ---------- reduced motion ---------- */
+[data-motion="reduced"] *,[data-motion="reduced"] *::before,[data-motion="reduced"] *::after{animation-duration:.001ms!important;animation-delay:0ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+[data-motion="reduced"] .blob{animation:none!important}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .blob{animation:none!important}
+}
+</style>
+</head>
+<body>
+<!-- Splash / loading state -->
+<div id="splash" role="status" aria-label="Opening your vault">
+  <div class="splash-inner">
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg-splash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E0459B"/><stop offset=".5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#2EC4B6"/></linearGradient></defs><rect x="1" y="1" width="38" height="38" rx="12" fill="url(#lg-splash)"/><rect x="4" y="4" width="32" height="32" rx="9" fill="#0D1220" opacity=".9"/><g transform="translate(6.2 13.4) scale(.23)" fill="#fff"><path d="M6 33c0-6 4-8.5 12-9.5l15-2.2C39.5 14 49 10 61 10c12 0 20.5 4 28 10.5l15 2c6.5.9 10 4 10 8.5v2.5c0 1.6-1.2 2.5-2.8 2.5H101a10 10 0 0 0-19.6 0H40.6a10 10 0 0 0-19.6 0H9.2C7.3 36 6 35 6 33z"/><circle cx="30.8" cy="36" r="7.6"/><circle cx="91.2" cy="36" r="7.6"/></g></svg>
+    <div class="splash-word display">ADDiecastVault</div>
+    <div class="splash-bar"><span></span></div>
+  </div>
+</div>
+
+<div class="backdrop-fx" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="grid-fx"></span></div>
+
+<div class="app">
+  <aside class="sidebar" aria-label="Sidebar">
+    <a class="brandmark" href="#/dashboard" data-logo="side"></a>
+    <nav class="nav" id="side-nav" aria-label="Main navigation"></nav>
+    <div class="side-foot" id="side-status"></div>
+  </aside>
+
+  <header class="topbar">
+    <a class="brandmark" href="#/dashboard" data-logo="top"></a>
+    <div class="topbar-right">
+      <a class="icon-btn" id="top-status" href="#/settings" aria-label="Data source"></a>
+      <button class="icon-btn" data-action="toggle-theme" id="top-theme" aria-label="Switch theme"></button>
+    </div>
+  </header>
+
+  <main class="main" id="main">
+    <div id="view" class="view" tabindex="-1"></div>
+  </main>
+</div>
+
+<nav class="bottomnav" id="bottom-nav" aria-label="Main navigation"></nav>
+<button class="fab" data-action="add-car" aria-label="Add a car" id="fab"></button>
+
+<div id="modal-root"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<input type="file" id="import-file" accept="application/json,.json" hidden>
+<script>
+'use strict';
+/* =============================================================================
+   ADDiecastVault
+   -----------------------------------------------------------------------------
+   Architecture (top to bottom in this file):
+     1. Config ............ app constants + FIREBASE_CONFIG placeholders
+     2. Utilities ......... formatting, escaping, ids, dates
+     4. Data adapters ..... LocalStorageAdapter / FirebaseAdapter (same interface)
+     5. Store ............. single source of truth, validation, mutations
+     6. UI ................ icons, components, views, modals, toasts, router
+     7. Boot
+
+   Every adapter implements the same contract, so the UI never talks to
+   storage directly:
+     init()                 → prepare the backend (throws on failure)
+     load()                 → { brands, categories, cars } | null when never initialised
+     commit(ops, snapshot)  → persist a list of { type:'set'|'delete', col, id, data }
+     replaceAll(snapshot)   → overwrite everything (import, reset, erase)
+     subscribe(callback)    → push remote/cross-tab changes into the Store
+     dispose()              → stop listening
+
+   To go live with Firebase:
+     a) Create a Firebase project, enable Authentication (Anonymous only)
+        and Cloud Firestore.
+     b) Paste your web keys into FIREBASE_CONFIG below, or into Settings → Data source.
+     c) Serve this file from an authorised domain (Firebase Hosting, localhost…).
+     d) Switch Settings → Data source to “Firebase cloud”.
+   Shared vault, no login: every device reads and writes the same data at
+   vaults/{VAULT_ID}/{brands|categories|cars}/{id}. Anonymous auth runs silently
+   in the background so Firestore rules can require request.auth != null.
+   ============================================================================= */
+
+/* ---------- 1. Config ---------- */
+const APP = { name: 'ADDiecastVault', version: '1.0.0', dataKey: 'addv.data.v2', settingsKey: 'addv.settings.v2' };
+
+// Firebase project: addiecastvault
+const FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyC8XzM7IdUJe-h_1I_Q2Di-PiGfSqP_AJs',
+  authDomain: 'addiecastvault.firebaseapp.com',
+  projectId: 'addiecastvault',
+  storageBucket: 'addiecastvault.firebasestorage.app',
+  messagingSenderId: '466510173591',
+  appId: '1:466510173591:web:ac2aba1e7df7029a69e0d2'
+};
+const FIREBASE_SDK_VERSION = '10.12.2';
+const VAULT_ID = 'main'; // one shared vault for every device
+const FIREBASE_FIELDS = [
+  ['apiKey', 'API key'], ['authDomain', 'Auth domain'], ['projectId', 'Project ID'],
+  ['storageBucket', 'Storage bucket'], ['messagingSenderId', 'Messaging sender ID'], ['appId', 'App ID']
+];
+
+const COLLECTIONS = ['brands', 'categories', 'cars'];
+const KINDS = {
+  brand:    { col: 'brands',     field: 'brandId',    label: 'brand',    Label: 'Brand',    plural: 'brands',     Plural: 'Brands',     route: 'brands',     icon: 'brand',  other: 'category' },
+  category: { col: 'categories', field: 'categoryId', label: 'category', Label: 'Category', plural: 'categories', Plural: 'Categories', route: 'categories', icon: 'layers', other: 'brand' }
+};
+const PALETTE = [
+  { name: 'Candy red', hex: '#E5484D' }, { name: 'Tangerine', hex: '#F28C38' }, { name: 'Gold leaf', hex: '#F2B544' },
+  { name: 'Lime', hex: '#7BC86C' }, { name: 'Teal', hex: '#2EC4B6' }, { name: 'Candy blue', hex: '#3D7BFF' },
+  { name: 'Violet', hex: '#8B5CF6' }, { name: 'Magenta', hex: '#E0459B' }, { name: 'Chrome', hex: '#9AA6B8' },
+  { name: 'Copper', hex: '#C8794A' }
+];
+const SCALES = ['1:64', '1:43', '1:32', '1:24', '1:18', '1:12', 'Other'];
+const FALLBACK_COLOR = '#9AA6B8';
+
+/* ---------- 2. Utilities ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+  : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => String(s ?? '').trim().replace(/\s+/g, ' ');
+const nameKey = s => norm(s).toLocaleLowerCase();
+const pad = n => String(n).padStart(2, '0');
+const toISODate = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const todayISO = () => toISODate(new Date());
+const daysAgoISO = n => { const d = new Date(); d.setDate(d.getDate() - n); return toISODate(d); };
+const parseISO = s => { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
+const isISODate = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s)) && !isNaN(parseISO(s));
+const fmtDate = s => isISODate(s) ? parseISO(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+const fmtShort = s => isISODate(s) ? parseISO(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—';
+const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+const pct = (a, b) => b ? Math.round((a / b) * 100) : 0;
+const clone = o => (typeof structuredClone === 'function') ? structuredClone(o) : JSON.parse(JSON.stringify(o));
+const isHex = s => /^#[0-9a-f]{6}$/i.test(String(s));
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const reducedMotion = () => document.documentElement.dataset.motion === 'reduced' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const emptyState = () => ({ brands: [], categories: [], cars: [] });
+const byNewest = (a, b) => (b.dateAdded || '').localeCompare(a.dateAdded || '') || (b.createdAt || '').localeCompare(a.createdAt || '');
+
+/* ---------- 4. Data adapters ---------- */
+class LocalStorageAdapter {
+  constructor(key) { this.key = key; this.id = 'local'; this.memoryOnly = false; this._mem = null; this._onStorage = null; }
+  async init() {
+    try { const t = '__addv_probe__'; localStorage.setItem(t, '1'); localStorage.removeItem(t); }
+    catch { this.memoryOnly = true; }
+    return true;
+  }
+  async load() {
+    if (this.memoryOnly) return this._mem ? clone(this._mem) : null;
+    const raw = localStorage.getItem(this.key);
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  }
+  async _save(snapshot) {
+    const payload = { schema: 1, savedAt: new Date().toISOString(), brands: snapshot.brands, categories: snapshot.categories, cars: snapshot.cars };
+    if (this.memoryOnly) { this._mem = clone(payload); return; }
+    try { localStorage.setItem(this.key, JSON.stringify(payload)); }
+    catch (e) { throw new Error('Browser storage is full or blocked.'); }
+  }
+  async commit(ops, snapshot) { await this._save(snapshot); }
+  async replaceAll(snapshot) { await this._save(snapshot); }
+  subscribe(cb) {
+    if (this.memoryOnly) return;
+    this._onStorage = e => { if (e.key === this.key) this.load().then(d => d && cb(d)); };
+    window.addEventListener('storage', this._onStorage); // keeps open tabs in sync
+  }
+  dispose() { if (this._onStorage) window.removeEventListener('storage', this._onStorage); }
+}
+
+class FirebaseAdapter {
+  constructor(config) { this.config = { ...config }; this.id = 'firebase'; this.unsubs = []; this.user = null; this.sdk = null; }
+  static isConfigured(c) {
+    return !!c && ['apiKey', 'authDomain', 'projectId', 'appId'].every(k => c[k] && !/^YOUR_/i.test(String(c[k]).trim()));
+  }
+  async init() {
+    if (!FirebaseAdapter.isConfigured(this.config)) throw new Error('Add your Firebase project keys first.');
+    const base = `https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}`;
+    let app, auth, fs;
+    try {
+      [app, auth, fs] = await Promise.all([
+        import(`${base}/firebase-app.js`), import(`${base}/firebase-auth.js`), import(`${base}/firebase-firestore.js`)
+      ]);
+    } catch { throw new Error('The Firebase SDK couldn’t load. Check your internet connection.'); }
+    this.sdk = { app, auth, fs };
+    const existing = app.getApps().find(a => a.name === 'addv');
+    if (existing) await app.deleteApp(existing);
+    this.app = app.initializeApp(this.config, 'addv');
+    this.auth = auth.getAuth(this.app);
+    this.db = fs.getFirestore(this.app);
+    this.user = await this.ensureUser();
+    return true;
+  }
+  ensureUser() {
+    const { auth } = this.sdk;
+    return new Promise((resolve, reject) => {
+      const off = auth.onAuthStateChanged(this.auth, async user => {
+        off();
+        try { resolve(user || (await auth.signInAnonymously(this.auth)).user); }
+        catch (e) { reject(new Error(e.code === 'auth/operation-not-allowed' ? 'Enable Anonymous sign-in in Firebase Authentication.' : (e.message || 'Sign-in failed.'))); }
+      }, reject);
+    });
+  }
+  colRef(col) { return this.sdk.fs.collection(this.db, 'vaults', VAULT_ID, col); }
+  async load() {
+    const out = {};
+    await Promise.all(COLLECTIONS.map(async c => {
+      const snap = await this.sdk.fs.getDocs(this.colRef(c));
+      out[c] = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+    }));
+    return out;
+  }
+  async commit(ops) {
+    const { fs } = this.sdk;
+    for (let i = 0; i < ops.length; i += 450) { // Firestore batches allow 500 writes
+      const batch = fs.writeBatch(this.db);
+      ops.slice(i, i + 450).forEach(op => {
+        const ref = fs.doc(this.db, 'vaults', VAULT_ID, op.col, op.id);
+        if (op.type === 'delete') batch.delete(ref); else batch.set(ref, op.data);
+      });
+      await batch.commit();
+    }
+  }
+  async replaceAll(snapshot) {
+    const current = await this.load();
+    const ops = [];
+    COLLECTIONS.forEach(c => {
+      const keep = new Set(snapshot[c].map(x => x.id));
+      current[c].forEach(x => { if (!keep.has(x.id)) ops.push({ type: 'delete', col: c, id: x.id }); });
+      snapshot[c].forEach(x => ops.push({ type: 'set', col: c, id: x.id, data: x }));
+    });
+    await this.commit(ops);
+  }
+  subscribe(cb) {
+    const cache = {};
+    COLLECTIONS.forEach(c => {
+      const off = this.sdk.fs.onSnapshot(this.colRef(c), snap => {
+        cache[c] = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+        if (Object.keys(cache).length < COLLECTIONS.length || snap.metadata.hasPendingWrites) return;
+        cb({ ...cache });
+      });
+      this.unsubs.push(off);
+    });
+  }
+  dispose() { this.unsubs.forEach(f => f()); this.unsubs = []; }
+}
+
+/* ---------- Settings (always stored on this device) ---------- */
+const Settings = {
+  defaults: { mode: 'local', theme: 'dark', reduceMotion: false, migrate: true, firebase: {} },
+  data: null,
+  load() {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(APP.settingsKey) || '{}') || {}; } catch { saved = {}; }
+    // When real Firebase keys are in FIREBASE_CONFIG, the cloud is the default data source.
+    const mode = FirebaseAdapter.isConfigured(FIREBASE_CONFIG) ? 'firebase' : 'local';
+    this.data = { ...this.defaults, mode, ...saved, firebase: { ...(saved.firebase || {}) } };
+    return this.data;
+  },
+  save(patch) {
+    Object.assign(this.data, patch);
+    try { localStorage.setItem(APP.settingsKey, JSON.stringify(this.data)); } catch { /* storage blocked */ }
+  },
+  firebaseConfig() {
+    const out = { ...FIREBASE_CONFIG };
+    Object.entries(this.data.firebase || {}).forEach(([k, v]) => { if (norm(v)) out[k] = norm(v); });
+    return out;
+  }
+};
+
+/* ---------- 5. Store ---------- */
+function sanitize(d) {
+  const arr = v => Array.isArray(v) ? v : [];
+  const tax = (list, i0) => arr(list).filter(x => x && x.id && norm(x.name)).map((x, i) => ({
+    id: String(x.id), name: norm(x.name), color: isHex(x.color) ? x.color : PALETTE[(i + i0) % PALETTE.length].hex,
+    createdAt: x.createdAt || new Date().toISOString(), ...(x.updatedAt ? { updatedAt: x.updatedAt } : {})
+  }));
+  return {
+    brands: tax(d && d.brands, 0),
+    categories: tax(d && d.categories, 3),
+    cars: arr(d && d.cars).filter(x => x && x.id && norm(x.name)).map(x => ({
+      id: String(x.id), name: norm(x.name), brandId: x.brandId || '', categoryId: x.categoryId || '',
+      dateAdded: isISODate(x.dateAdded) ? x.dateAdded : todayISO(), scale: x.scale || '', notes: x.notes || '',
+      createdAt: x.createdAt || new Date().toISOString(), updatedAt: x.updatedAt || x.createdAt || new Date().toISOString()
+    }))
+  };
+}
+const hasAny = d => !!d && COLLECTIONS.some(c => Array.isArray(d[c]) && d[c].length);
+
+function applyOps(state, ops) {
+  ops.forEach(op => {
+    const list = state[op.col];
+    const i = list.findIndex(x => x.id === op.id);
+    if (op.type === 'delete') { if (i > -1) list.splice(i, 1); }
+    else if (i > -1) list[i] = clone(op.data); else list.push(clone(op.data));
+  });
+}
+
+const Store = {
+  state: emptyState(),
+  adapter: null,
+  mode: 'local',
+  listeners: new Set(),
+
+  subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); },
+  emit() { this.listeners.forEach(fn => fn(this.state)); },
+
+  /** Connect to a backend. Only swaps the active adapter once the new one is ready. */
+  async connect(mode, { seedFrom = null } = {}) {
+    const adapter = mode === 'firebase' ? new FirebaseAdapter(Settings.firebaseConfig()) : new LocalStorageAdapter(APP.dataKey);
+    await adapter.init();
+    let data = await adapter.load();
+    if (mode === 'firebase') {
+      if (!hasAny(data) && seedFrom && hasAny(seedFrom)) { data = clone(seedFrom); await adapter.replaceAll(sanitize(data)); }
+    } else if (data === null) {
+      data = emptyState(); await adapter.replaceAll(data); // first run starts with an empty vault
+    }
+    if (this.adapter && this.adapter.dispose) this.adapter.dispose();
+    this.adapter = adapter;
+    this.mode = mode;
+    this.state = sanitize(data || emptyState());
+    adapter.subscribe(remote => { this.state = sanitize(remote); this.emit(); });
+    this.emit();
+    return adapter;
+  },
+
+  async reloadFromAdapter() {
+    this.adapter.dispose();
+    this.state = sanitize(await this.adapter.load());
+    this.adapter.subscribe(remote => { this.state = sanitize(remote); this.emit(); });
+    this.emit();
+  },
+
+  /* ----- selectors ----- */
+  list(kind) { return kind === 'car' ? this.state.cars : this.state[KINDS[kind].col]; },
+  get(kind, id) { return this.list(kind).find(x => x.id === id) || null; },
+  carsFor(kind, id) { const f = KINDS[kind].field; return this.state.cars.filter(c => c[f] === id); },
+  counts(kind) {
+    const f = KINDS[kind].field, m = new Map();
+    this.state.cars.forEach(c => m.set(c[f], (m.get(c[f]) || 0) + 1));
+    return m;
+  },
+  ranked(kind) {
+    const m = this.counts(kind);
+    return this.list(kind).map(x => ({ ...x, count: m.get(x.id) || 0 }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  },
+  findByName(kind, name, exceptId) {
+    const k = nameKey(name);
+    return this.list(kind).find(x => x.id !== exceptId && nameKey(x.name) === k) || null;
+  },
+
+  /* ----- core write path: optimistic update, persist, roll back on failure ----- */
+  async commit(ops) {
+    const before = clone(this.state);
+    const inverse = ops.slice().reverse().map(op => {
+      const prev = before[op.col].find(x => x.id === op.id);
+      return prev ? { type: 'set', col: op.col, id: op.id, data: clone(prev) } : { type: 'delete', col: op.col, id: op.id };
+    });
+    applyOps(this.state, ops);
+    this.emit();
+    try { await this.adapter.commit(ops, this.state); return { ok: true, inverse }; }
+    catch (err) {
+      console.error(err);
+      this.state = before; this.emit();
+      return { ok: false, error: `Changes weren’t saved: ${err.message || err}` };
+    }
+  },
+
+  async replaceAll(data) {
+    const before = this.state;
+    this.state = sanitize(data); this.emit();
+    try { await this.adapter.replaceAll(this.state); return { ok: true }; }
+    catch (err) { this.state = before; this.emit(); return { ok: false, error: `Changes weren’t saved: ${err.message || err}` }; }
+  },
+
+  /* ----- validation ----- */
+  validateCar(input) {
+    const errors = {};
+    const name = norm(input.name);
+    const notes = String(input.notes || '').trim();
+    if (!name) errors.name = 'Enter the car’s name.';
+    else if (name.length < 2) errors.name = 'Use at least 2 characters.';
+    else if (name.length > 80) errors.name = 'Keep the name under 80 characters.';
+    if (!input.brandId || !this.get('brand', input.brandId)) errors.brandId = 'Choose a brand.';
+    if (!input.categoryId || !this.get('category', input.categoryId)) errors.categoryId = 'Choose a category.';
+    if (!isISODate(input.dateAdded)) errors.dateAdded = 'Pick the date you added it.';
+    else if (input.dateAdded > todayISO()) errors.dateAdded = 'The date can’t be in the future.';
+    if (input.scale && !SCALES.includes(input.scale)) errors.scale = 'Choose a scale from the list.';
+    if (notes.length > 280) errors.notes = 'Keep notes under 280 characters.';
+    return { errors, value: { name, brandId: input.brandId, categoryId: input.categoryId, dateAdded: input.dateAdded, scale: input.scale || '', notes } };
+  },
+  validateTax(kind, input, id) {
+    const errors = {};
+    const name = norm(input.name);
+    const K = KINDS[kind];
+    if (!name) errors.name = `Enter a ${K.label} name.`;
+    else if (name.length < 2) errors.name = 'Use at least 2 characters.';
+    else if (name.length > 40) errors.name = 'Keep the name under 40 characters.';
+    else {
+      const dup = this.findByName(kind, name, id);
+      if (dup) errors.name = `“${dup.name}” already exists. ${K.Label} names must be unique, whatever the capitalisation.`;
+    }
+    if (!isHex(input.color)) errors.color = 'Pick a colour.';
+    return { errors, value: { name, color: input.color } };
+  },
+
+  /* ----- mutations ----- */
+  async saveCar(input, id = null) {
+    const { errors, value } = this.validateCar(input);
+    if (Object.keys(errors).length) return { ok: false, errors };
+    const now = new Date().toISOString();
+    const prev = id ? this.get('car', id) : null;
+    if (id && !prev) return { ok: false, error: 'This car no longer exists.' };
+    const item = prev ? { ...prev, ...value, updatedAt: now } : { id: uid(), ...value, createdAt: now, updatedAt: now };
+    const res = await this.commit([{ type: 'set', col: 'cars', id: item.id, data: item }]);
+    return { ...res, item };
+  },
+  async deleteCar(id) {
+    if (!this.get('car', id)) return { ok: false, error: 'This car no longer exists.' };
+    return this.commit([{ type: 'delete', col: 'cars', id }]);
+  },
+  async saveTax(kind, input, id = null) {
+    const { errors, value } = this.validateTax(kind, input, id);
+    if (Object.keys(errors).length) return { ok: false, errors };
+    const now = new Date().toISOString();
+    const prev = id ? this.get(kind, id) : null;
+    if (id && !prev) return { ok: false, error: `This ${KINDS[kind].label} no longer exists.` };
+    const item = prev ? { ...prev, ...value, updatedAt: now } : { id: uid(), ...value, createdAt: now };
+    const res = await this.commit([{ type: 'set', col: KINDS[kind].col, id: item.id, data: item }]);
+    return { ...res, item };
+  },
+  /** strategy: 'reassign' (needs targetId) or 'cascade'. Linked cars are never removed silently. */
+  async deleteTax(kind, id, { strategy = null, targetId = null } = {}) {
+    const K = KINDS[kind];
+    if (!this.get(kind, id)) return { ok: false, error: `This ${K.label} no longer exists.` };
+    const linked = this.carsFor(kind, id);
+    const ops = [];
+    if (linked.length) {
+      if (strategy === 'reassign') {
+        if (!targetId || targetId === id || !this.get(kind, targetId)) return { ok: false, error: `Choose a ${K.label} to move the cars to.` };
+        const now = new Date().toISOString();
+        linked.forEach(c => ops.push({ type: 'set', col: 'cars', id: c.id, data: { ...c, [K.field]: targetId, updatedAt: now } }));
+      } else if (strategy === 'cascade') {
+        linked.forEach(c => ops.push({ type: 'delete', col: 'cars', id: c.id }));
+      } else {
+        return { ok: false, error: `This ${K.label} is linked to ${plural(linked.length, 'car')}. Choose what happens to them first.` };
+      }
+    }
+    ops.push({ type: 'delete', col: K.col, id });
+    return this.commit(ops);
+  }
+};
+</script>
+<script>
+'use strict';
+/* =============================================================================
+   6. UI — icons and shared components
+   ============================================================================= */
+const ICONS = {
+  grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/>',
+  car: '<path d="M5 17H4a1 1 0 0 1-1-1v-3.4a2 2 0 0 1 .6-1.4L6 8.6l1.6-3a2 2 0 0 1 1.8-1h5.2a2 2 0 0 1 1.8 1l1.6 3 2.4 2.6a2 2 0 0 1 .6 1.4V16a1 1 0 0 1-1 1h-1"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><path d="M9.5 17h5M6 8.6h12"/>',
+  brand: '<path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6L12 3z"/><path d="M12 8.3l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z"/>',
+  layers: '<path d="M12 3.5l8.5 4.5-8.5 4.5L3.5 8 12 3.5z"/><path d="M3.5 12.5l8.5 4.5 8.5-4.5"/><path d="M3.5 16.5l8.5 4.5 8.5-4.5"/>',
+  sliders: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
+  edit: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',
+  eye: '<path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/>',
+  x: '<path d="M18 6L6 18M6 6l12 12"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+  alert: '<path d="M12 3.5l9 16H3l9-16z"/><path d="M12 10v4M12 17v.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.01"/>',
+  back: '<path d="M15 18l-6-6 6-6"/>',
+  download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  upload: '<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',
+  refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+  cloud: '<path d="M7 18.5a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 9.5a4.5 4.5 0 0 1-.5 9H7z"/>',
+  db: '<ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v13c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-13M4.5 12c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/>',
+  moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  monitor: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0V4zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9.5 17h5"/>',
+  trend: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  swap: '<path d="M7 7h13l-4-4M17 17H4l4 4"/>',
+  sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>',
+  logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/>',
+  keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M7.5 14h9"/>'
+};
+const ic = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+
+/* Car silhouette used across thumbnails, shelf cards and the showcase. Body colour = currentColor. */
+const CAR_BODY = 'M6 33c0-6 4-8.5 12-9.5l15-2.2C39.5 14 49 10 61 10c12 0 20.5 4 28 10.5l15 2c6.5.9 10 4 10 8.5v2.5c0 1.6-1.2 2.5-2.8 2.5H101a10 10 0 0 0-19.6 0H40.6a10 10 0 0 0-19.6 0H9.2C7.3 36 6 35 6 33z';
+const carSVG = () => `<svg class="car-sil" viewBox="0 0 120 46" aria-hidden="true">
+  <path fill="currentColor" d="${CAR_BODY}"/>
+  <path fill="rgba(8,12,22,.6)" d="M40 21.5c5-6 11.5-8.6 20-8.6v8.6zM64 12.9c8.6.3 15 3.2 20.5 8.6H64z"/>
+  <path fill="#fff" opacity=".28" d="M14 27.5c8-1.6 30-3.4 52-3.4s30 1 40 2.6c-10-.6-26-1-44-1-22 0-38 1-48 1.8z"/>
+  <circle cx="30.8" cy="36" r="7.6" fill="var(--tire)"/><circle cx="30.8" cy="36" r="3.4" fill="var(--hub)"/>
+  <circle cx="91.2" cy="36" r="7.6" fill="var(--tire)"/><circle cx="91.2" cy="36" r="3.4" fill="var(--hub)"/></svg>`;
+
+let logoSeq = 0;
+const logoSVG = () => { const id = 'lg' + (++logoSeq); return `<svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E0459B"/><stop offset=".5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#2EC4B6"/></linearGradient></defs><rect x="1" y="1" width="38" height="38" rx="12" fill="url(#${id})"/><rect x="4" y="4" width="32" height="32" rx="9" fill="#0D1220" opacity=".9"/><g transform="translate(6.2 13.4) scale(.23)" fill="#fff"><path d="${CAR_BODY}"/><circle cx="30.8" cy="36" r="7.6"/><circle cx="91.2" cy="36" r="7.6"/></g></svg>`; };
+
+const emptyIllustration = () => `<svg class="ill" viewBox="0 0 200 120" aria-hidden="true">
+  <rect x="14" y="10" width="172" height="96" rx="18" fill="none" stroke="var(--line-3)" stroke-width="2" stroke-dasharray="6 7"/>
+  <rect x="86" y="18" width="28" height="7" rx="3.5" fill="var(--line-2)"/>
+  <g transform="translate(40 40)" style="color:var(--faint)" opacity=".7"><g transform="scale(1)"><path fill="currentColor" d="${CAR_BODY}"/><circle cx="30.8" cy="36" r="7.6" fill="var(--tire)"/><circle cx="91.2" cy="36" r="7.6" fill="var(--tire)"/></g></g>
+  <path d="M170 22l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#E0459B" opacity=".8"/><path d="M28 86l1.4 3.4 3.4 1.4-3.4 1.4L28 95.6l-1.4-3.4-3.4-1.4 3.4-1.4z" fill="#2EC4B6" opacity=".8"/></svg>`;
+
+const brandOf = car => Store.get('brand', car.brandId);
+const categoryOf = car => Store.get('category', car.categoryId);
+const colorOf = item => (item && item.color) || FALLBACK_COLOR;
+
+function chip(kind, item, extra = '') {
+  if (!item) return `<span class="chip static" style="--c:${FALLBACK_COLOR}"><span class="dot"></span><span class="t">${kind === 'brand' ? 'No brand' : 'No category'}</span></span>`;
+  return `<a class="chip" href="#/${kind}/${encodeURIComponent(item.id)}" style="--c:${item.color}" title="View ${esc(item.name)}"><span class="dot"></span><span class="t">${esc(item.name)}</span>${extra}</a>`;
+}
+
+function emptyBlock({ title, text, actions = '' }) {
+  return `<div class="empty">${emptyIllustration()}<h3>${title}</h3><p>${text}</p>${actions ? `<div class="head-actions">${actions}</div>` : ''}</div>`;
+}
+
+function pageHead(title, sub, actions = '') {
+  return `<header class="page-head"><div><h1 class="page-title">${title}</h1>${sub ? `<p class="page-sub">${sub}</p>` : ''}</div>${actions ? `<div class="head-actions">${actions}</div>` : ''}</header>`;
+}
+
+/* ---------- car list renderers: table for desktop, cards for mobile ---------- */
+function carTable(cars, { hide = null } = {}) {
+  return `<div class="table-wrap"><table class="dt">
+    <thead><tr><th>Car</th>${hide !== 'brand' ? '<th>Brand</th>' : ''}${hide !== 'category' ? '<th>Category</th>' : ''}<th>Date added</th><th class="r"><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>${cars.map(c => {
+      const b = brandOf(c), k = categoryOf(c);
+      return `<tr data-action="view-car" data-id="${c.id}" tabindex="0" aria-label="View ${esc(c.name)}">
+        <td><div class="car-cell"><span class="car-thumb" style="--c:${colorOf(b)}">${carSVG()}</span><div style="min-width:0"><b>${esc(c.name)}</b><small>${c.scale ? esc(c.scale) + ' scale' : 'Scale not set'}</small></div></div></td>
+        ${hide !== 'brand' ? `<td>${chip('brand', b)}</td>` : ''}
+        ${hide !== 'category' ? `<td>${chip('category', k)}</td>` : ''}
+        <td class="muted">${fmtDate(c.dateAdded)}</td>
+        <td class="row-actions">
+          <button class="icon-btn" data-action="view-car" data-id="${c.id}" aria-label="View ${esc(c.name)}" title="View">${ic('eye', 'sm')}</button>
+          <button class="icon-btn" data-action="edit-car" data-id="${c.id}" aria-label="Edit ${esc(c.name)}" title="Edit">${ic('edit', 'sm')}</button>
+          <button class="icon-btn danger" data-action="delete-car" data-id="${c.id}" aria-label="Delete ${esc(c.name)}" title="Delete">${ic('trash', 'sm')}</button>
+        </td></tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+function carCards(cars, { hide = null } = {}) {
+  return cars.map(c => {
+    const b = brandOf(c), k = categoryOf(c);
+    return `<article class="mcard" style="--c:${colorOf(b)}">
+      <div class="mcard-top" data-action="view-car" data-id="${c.id}" role="button" tabindex="0">
+        <span class="car-thumb" style="--c:${colorOf(b)}">${carSVG()}</span>
+        <div class="grow"><b>${esc(c.name)}</b><small>Added ${fmtDate(c.dateAdded)}${c.scale ? ', ' + esc(c.scale) : ''}</small></div>
+      </div>
+      <div class="mcard-tags">${hide !== 'brand' ? chip('brand', b) : ''}${hide !== 'category' ? chip('category', k) : ''}</div>
+      <div class="mcard-actions">
+        <button class="btn" data-action="view-car" data-id="${c.id}">${ic('eye', 'sm')}View</button>
+        <button class="btn" data-action="edit-car" data-id="${c.id}">${ic('edit', 'sm')}Edit</button>
+        <button class="btn btn-danger" data-action="delete-car" data-id="${c.id}">${ic('trash', 'sm')}Delete</button>
+      </div></article>`;
+  }).join('');
+}
+
+function carResults(cars, opts = {}) {
+  return `<div class="panel desktop-only">${carTable(cars, opts)}</div><div class="mcards mobile-only">${carCards(cars, opts)}</div>`;
+}
+
+function filterCars(cars, q) {
+  const terms = nameKey(q).split(' ').filter(Boolean);
+  if (!terms.length) return cars;
+  return cars.filter(c => {
+    const hay = [c.name, brandOf(c)?.name, categoryOf(c)?.name, c.scale, c.notes].join(' ').toLocaleLowerCase();
+    return terms.every(t => hay.includes(t));
+  });
+}
+
+function sortCars(cars, sort) {
+  const list = cars.slice();
+  const by = {
+    newest: byNewest,
+    oldest: (a, b) => -byNewest(a, b),
+    name: (a, b) => a.name.localeCompare(b.name),
+    brand: (a, b) => (brandOf(a)?.name || '').localeCompare(brandOf(b)?.name || '') || a.name.localeCompare(b.name)
+  };
+  return list.sort(by[sort] || byNewest);
+}
+
+/* ---------- charts (hand-built SVG, no libraries) ---------- */
+function monthlySeries(cars, months = 6) {
+  const now = new Date(), out = [];
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
+    out.push({ key, label: d.toLocaleDateString('en-GB', { month: 'short' }), value: cars.filter(c => (c.dateAdded || '').startsWith(key)).length });
+  }
+  return out;
+}
+
+function areaChart(series) {
+  const W = 420, H = 170, px = 18, top = 26, bottom = 30;
+  const max = Math.max(1, ...series.map(s => s.value));
+  const step = (W - px * 2) / (series.length - 1);
+  const pts = series.map((s, i) => [px + i * step, top + (H - top - bottom) * (1 - s.value / max)]);
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], cx = (x1 - x0) / 2;
+    d += ` C${x0 + cx},${y0} ${x1 - cx},${y1} ${x1},${y1}`;
+  }
+  const base = H - bottom;
+  const area = `${d} L${pts[pts.length - 1][0]},${base} L${pts[0][0]},${base} Z`;
+  return `<div class="area"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cars added per month: ${series.map(s => `${s.label} ${s.value}`).join(', ')}">
+    <defs>
+      <linearGradient id="areaStroke" x1="0" x2="1"><stop offset="0" stop-color="#E0459B"/><stop offset=".4" stop-color="#8B5CF6"/><stop offset=".75" stop-color="#3D7BFF"/><stop offset="1" stop-color="#2EC4B6"/></linearGradient>
+      <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8B5CF6" stop-opacity=".35"/><stop offset="1" stop-color="#3D7BFF" stop-opacity="0"/></linearGradient>
+    </defs>
+    <line class="a-base" x1="${px}" x2="${W - px}" y1="${base}" y2="${base}"/>
+    <path class="a-fill" d="${area}" fill="url(#areaFill)"/>
+    <path class="a-line" d="${d}" stroke="url(#areaStroke)" pathLength="1"/>
+    <g class="a-dots">${pts.map(([x, y], i) => `<circle class="a-pt" cx="${x}" cy="${y}" r="5" fill="${['#E0459B', '#B054D6', '#8B5CF6', '#5E6EFA', '#3D7BFF', '#2EC4B6'][i % 6]}"/><text class="a-val" x="${x}" y="${y - 11}" text-anchor="middle">${series[i].value}</text>`).join('')}</g>
+    ${pts.map(([x], i) => `<text class="a-lbl" x="${x}" y="${H - 8}" text-anchor="middle">${esc(series[i].label)}</text>`).join('')}
+  </svg></div>`;
+}
+
+function donutChart(items, total, centerLabel) {
+  const R = 70, C = 2 * Math.PI * R;
+  let acc = 0;
+  const segs = items.map((it, i) => {
+    const full = total ? (it.value / total) * C : 0;
+    const len = Math.max(0, full - (items.length > 1 && full > 4 ? 2.5 : 0));
+    const s = `<circle class="seg" data-i="${i}" r="${R}" cx="90" cy="90" stroke="${it.color}" style="--i:${i};stroke-dasharray:${len.toFixed(2)} ${C.toFixed(2)};stroke-dashoffset:${(-acc).toFixed(2)}"><title>${esc(it.label)}: ${it.value}</title></circle>`;
+    acc += full; return s;
+  }).join('');
+  return `<div class="donut" data-donut><svg viewBox="0 0 180 180" role="img" aria-label="${esc(centerLabel)} breakdown"><circle class="track" r="${R}" cx="90" cy="90"/>${segs}</svg>
+    <div class="donut-center"><b>${total}</b><small>${esc(centerLabel)}</small></div></div>`;
+}
+
+/* =============================================================================
+   Views
+   ============================================================================= */
+const UI = {
+  filters: { q: '', brand: '', category: '', sort: 'newest' },
+  taxQ: { brand: '', category: '' },
+  detailQ: '',
+  route: { name: 'dashboard', id: null }
+};
+
+const Views = {};
+
+/* ---------- Dashboard ---------- */
+Views.dashboard = {
+  title: 'Dashboard',
+  render() {
+    const s = Store.state, total = s.cars.length;
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    if (!total && !s.brands.length && !s.categories.length) {
+      return pageHead('Dashboard', `${greet}. Your vault is empty.`) + `<div class="panel">${emptyBlock({
+        title: 'Start your vault', text: 'Create a brand and a category, then add your first car.',
+        actions: `<button class="btn" data-action="add-tax" data-kind="category">${ic('plus', 'sm')}Create a category</button><button class="btn btn-primary" data-action="add-tax" data-kind="brand">${ic('plus', 'sm')}Create a brand</button>`
+      })}</div>`;
+    }
+    const sorted = s.cars.slice().sort(byNewest);
+    const latest = sorted[0];
+    const monthKey = todayISO().slice(0, 7);
+    const thisMonth = s.cars.filter(c => (c.dateAdded || '').startsWith(monthKey)).length;
+    const rb = Store.ranked('brand'), rc = Store.ranked('category');
+    const topB = rb[0], topC = rc[0];
+    const series = monthlySeries(s.cars);
+    const sixTotal = series.reduce((a, x) => a + x.value, 0);
+
+    // brand donut: top 6 + others
+    const top6 = rb.filter(b => b.count).slice(0, 6);
+    const otherCount = total - top6.reduce((a, b) => a + b.count, 0);
+    const donutItems = top6.map(b => ({ id: b.id, label: b.name, value: b.count, color: b.color }));
+    if (otherCount > 0) donutItems.push({ id: null, label: 'Other brands', value: otherCount, color: '#5E6A80' });
+    const maxCat = Math.max(1, ...rc.map(c => c.count));
+
+    const stat = (i, c, icon, val, label, action) => `<button class="stat" style="--c:${c};--i:${i}" ${action}>
+      <span class="stat-ic">${ic(icon)}</span><span class="stat-val" title="${esc(String(val))}">${val}</span><span class="stat-label">${label}</span></button>`;
+
+    return pageHead('Dashboard', `${greet}. Here’s how your vault is shaping up.`,
+      `<button class="btn btn-primary" data-action="add-car">${ic('plus', 'sm')}Add car</button>`) + `
+    <section class="hero">
+      <div>
+        <div class="hero-count" data-count="${total}">${total}</div>
+        <p class="hero-cap">${total === 1 ? 'car' : 'cars'} in the vault, from ${plural(s.brands.length, 'brand')} across ${plural(s.categories.length, 'category', 'categories')}.</p>
+        <div class="hero-meta">
+          <span class="pill ${thisMonth ? 'pill-up' : ''}">${ic('trend', 'sm')}${thisMonth} added this month</span>
+          ${latest ? `<button class="pill" data-action="view-car" data-id="${latest.id}">${ic('calendar', 'sm')}<span class="t">Newest: ${esc(latest.name)}</span></button>` : ''}
+        </div>
+      </div>
+      <div class="hero-chart">
+        <div class="hero-chart-cap"><span>Cars added per month</span><span>${plural(sixTotal, 'car')} in 6 months</span></div>
+        ${areaChart(series)}
+      </div>
+    </section>
+
+    <section class="stats" aria-label="Summary">
+      ${stat(0, '#F2B544', 'brand', `<span data-count="${s.brands.length}">${s.brands.length}</span>`, 'Brands collected', 'data-action="go" data-to="brands"')}
+      ${stat(1, '#2EC4B6', 'layers', `<span data-count="${s.categories.length}">${s.categories.length}</span>`, 'Categories', 'data-action="go" data-to="categories"')}
+      ${topB && topB.count ? stat(2, topB.color, 'trophy', esc(topB.name), `Top brand, ${plural(topB.count, 'car')}`, `data-action="go" data-to="brand/${topB.id}"`) : stat(2, '#3D7BFF', 'trophy', '—', 'Top brand', 'data-action="go" data-to="brands"')}
+      ${topC && topC.count ? stat(3, topC.color, 'sparkle', esc(topC.name), `Top category, ${plural(topC.count, 'car')}`, `data-action="go" data-to="category/${topC.id}"`) : stat(3, '#8B5CF6', 'sparkle', '—', 'Top category', 'data-action="go" data-to="categories"')}
+    </section>
+
+    <section class="panel mt">
+      <div class="panel-head"><div><h2>Recently added</h2><p>The ${Math.min(10, total) || ''} latest cars in your vault</p></div><a class="link-btn" href="#/collection">View all</a></div>
+      ${total ? `<div class="shelf">${sorted.slice(0, 10).map((c, i) => {
+        const b = brandOf(c), k = categoryOf(c);
+        return `<button class="blister" style="--c:${colorOf(b)};--i:${i}" data-action="view-car" data-id="${c.id}" aria-label="View ${esc(c.name)}">
+          <span class="b-brand">${esc(b ? b.name : 'No brand')}</span>
+          <span class="bubble">${carSVG()}</span>
+          <span class="b-name">${esc(c.name)}</span>
+          <span class="b-foot"><span class="mini-chip" style="--c:${colorOf(k)}"><span class="dot"></span><span class="t">${esc(k ? k.name : 'No category')}</span></span><span class="b-date">${fmtShort(c.dateAdded)}</span></span>
+        </button>`;
+      }).join('')}</div>` : emptyBlock({ title: 'No cars yet', text: 'Your newest additions will line up here like a display shelf.', actions: `<button class="btn btn-primary" data-action="add-car">${ic('plus', 'sm')}Add your first car</button>` })}
+    </section>
+
+    <section class="grid-2 mt">
+      <div class="panel">
+        <div class="panel-head"><div><h2>By brand</h2><p>Share of your vault per brand</p></div><a class="link-btn" href="#/brands">All brands</a></div>
+        ${total ? `<div class="donut-wrap">${donutChart(donutItems, total, 'cars')}
+          <ul class="legend">${donutItems.map((it, i) => `<li><button style="--c:${it.color}" data-legend="${i}" ${it.id ? `data-action="go" data-to="brand/${it.id}"` : 'data-action="go" data-to="brands"'}>
+            <span class="dot"></span><span class="name">${esc(it.label)}</span><span class="num">${it.value}</span><span class="pc">${pct(it.value, total)}%</span></button></li>`).join('')}</ul></div>`
+          : emptyBlock({ title: 'Nothing to chart yet', text: 'Add cars to see how your brands stack up.' })}
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><h2>By category</h2><p>Cars per category</p></div><a class="link-btn" href="#/categories">All categories</a></div>
+        ${rc.length ? `<div class="bars">${rc.slice(0, 8).map((c, i) => `<button class="bar-row" style="--c:${c.color};--i:${i}" data-action="go" data-to="category/${c.id}">
+            <span class="name"><span class="dot" style="background:${c.color}"></span><span class="t">${esc(c.name)}</span></span>
+            <span class="num">${c.count}<small>${pct(c.count, total)}%</small></span>
+            <span class="bar-track"><span class="bar-fill" style="width:${c.count ? Math.max(3, (c.count / maxCat) * 100) : 0}%"></span></span></button>`).join('')}</div>`
+          : emptyBlock({ title: 'No categories yet', text: 'Categories group your cars by style, era or type.', actions: `<button class="btn" data-action="add-tax" data-kind="category">${ic('plus', 'sm')}Create a category</button>` })}
+      </div>
+    </section>`;
+  },
+  mount(view) {
+    const donut = $('[data-donut]', view);
+    if (!donut) return;
+    const legend = $$('.legend button', view);
+    const segs = $$('.seg', donut);
+    const hl = i => { donut.classList.toggle('hovering', i != null); segs.forEach(s => s.classList.toggle('on', s.dataset.i === String(i))); legend.forEach(l => l.classList.toggle('on', l.dataset.legend === String(i))); };
+    segs.forEach(s => {
+      s.addEventListener('mouseenter', () => hl(s.dataset.i));
+      s.addEventListener('mouseleave', () => hl(null));
+      s.addEventListener('click', () => legend[+s.dataset.i]?.click());
+    });
+    legend.forEach(l => { l.addEventListener('mouseenter', () => hl(l.dataset.legend)); l.addEventListener('mouseleave', () => hl(null)); });
+  }
+};
+
+/* ---------- All collections ---------- */
+Views.collection = {
+  title: 'All collections',
+  render() {
+    const s = Store.state, f = UI.filters;
+    if (f.brand && !Store.get('brand', f.brand)) f.brand = '';
+    if (f.category && !Store.get('category', f.category)) f.category = '';
+    const opt = (list, sel) => list.slice().sort((a, b) => a.name.localeCompare(b.name)).map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
+    return pageHead('All collections', `${plural(s.cars.length, 'car')} in your vault. Press <kbd>/</kbd> to search, <kbd>N</kbd> to add.`,
+      `<button class="btn btn-primary" data-action="add-car">${ic('plus', 'sm')}Add car</button>`) + `
+    <div class="toolbar panel" role="search">
+      <label class="search"><span class="sr-only">Search cars</span>${ic('search', 'sm')}<input class="input" id="f-q" type="search" placeholder="Search by car, brand, category or notes" value="${esc(f.q)}" autocomplete="off"></label>
+      <label><span class="sr-only">Filter by brand</span><select class="input" id="f-brand"><option value="">All brands</option>${opt(s.brands, f.brand)}</select></label>
+      <label><span class="sr-only">Filter by category</span><select class="input" id="f-category"><option value="">All categories</option>${opt(s.categories, f.category)}</select></label>
+      <label class="sort"><span class="sr-only">Sort</span><select class="input" id="f-sort">
+        ${[['newest', 'Newest first'], ['oldest', 'Oldest first'], ['name', 'Name A–Z'], ['brand', 'Brand A–Z']].map(([v, l]) => `<option value="${v}" ${f.sort === v ? 'selected' : ''}>${l}</option>`).join('')}
+      </select></label>
+      <button class="btn btn-ghost" data-action="clear-filters" id="clear-filters" ${f.q || f.brand || f.category ? '' : 'hidden'}>${ic('x', 'sm')}Clear filters</button>
+    </div>
+    <div id="results"></div>`;
+  },
+  mount(view) { Views.collection.results(view); },
+  results(view = $('#view')) {
+    const box = $('#results', view); if (!box) return;
+    const s = Store.state, f = UI.filters;
+    let list = s.cars;
+    if (f.brand) list = list.filter(c => c.brandId === f.brand);
+    if (f.category) list = list.filter(c => c.categoryId === f.category);
+    list = sortCars(filterCars(list, f.q), f.sort);
+    const active = !!(f.q || f.brand || f.category);
+    const clr = $('#clear-filters', view); if (clr) clr.hidden = !active;
+    if (!s.cars.length) {
+      box.innerHTML = `<div class="panel">${emptyBlock({ title: 'Your vault is waiting', text: 'Add your first car to start the collection. Each car needs a brand and a category.', actions: `<button class="btn btn-primary" data-action="add-car">${ic('plus', 'sm')}Add your first car</button>` })}</div>`;
+      return;
+    }
+    if (!list.length) {
+      box.innerHTML = `<div class="panel">${emptyBlock({ title: 'No cars match these filters', text: 'Try a different search term or clear the filters to see the whole vault.', actions: `<button class="btn" data-action="clear-filters">${ic('x', 'sm')}Clear filters</button>` })}</div>`;
+      return;
+    }
+    box.innerHTML = `<div class="results-meta"><span>Showing <b>${list.length}</b> of ${plural(s.cars.length, 'car')}</span></div>${carResults(list)}`;
+  }
+};
+
+/* ---------- Brands / Categories list (shared renderer) ---------- */
+function taxonomyView(kind) {
+  const K = KINDS[kind];
+  return {
+    title: K.Plural,
+    render() {
+      const items = Store.ranked(kind), total = Store.state.cars.length;
+      return pageHead(K.Plural, `${plural(items.length, K.label, K.plural)}, sorted by collection size. Select one to see its cars.`,
+        `<button class="btn btn-primary" data-action="add-tax" data-kind="${kind}">${ic('plus', 'sm')}Add ${K.label}</button>`) + `
+      <div class="toolbar panel" role="search" style="grid-template-columns:1fr">
+        <label class="search"><span class="sr-only">Search ${K.plural}</span>${ic('search', 'sm')}<input class="input" id="tax-q" data-kind="${kind}" type="search" placeholder="Search ${K.plural}" value="${esc(UI.taxQ[kind])}" autocomplete="off"></label>
+      </div>
+      <div id="tax-results"></div>`;
+    },
+    mount(view) { this.results(view); },
+    results(view = $('#view')) {
+      const box = $('#tax-results', view); if (!box) return;
+      const total = Store.state.cars.length;
+      const all = Store.ranked(kind);
+      const q = nameKey(UI.taxQ[kind]);
+      const items = q ? all.filter(x => nameKey(x.name).includes(q)) : all;
+      if (!all.length) {
+        box.innerHTML = `<div class="panel">${emptyBlock({ title: `No ${K.plural} yet`, text: kind === 'brand' ? 'Brands are the makers of your models, like Hot Wheels or Mini GT.' : 'Categories group your cars, for example JDM, Classics or Motorsport.', actions: `<button class="btn btn-primary" data-action="add-tax" data-kind="${kind}">${ic('plus', 'sm')}Add ${K.label}</button>` })}</div>`;
+        return;
+      }
+      if (!items.length) { box.innerHTML = `<div class="panel">${emptyBlock({ title: `No ${K.plural} match “${esc(UI.taxQ[kind])}”`, text: 'Check the spelling or clear the search.' })}</div>`; return; }
+      const latestFor = id => Store.carsFor(kind, id).sort(byNewest)[0];
+      const share = x => `<div class="share" style="--c:${x.color}"><div class="share-track"><span style="width:${pct(x.count, total)}%"></span></div><small>${pct(x.count, total)}%</small></div>`;
+      box.innerHTML = `<div class="results-meta"><span>Showing <b>${items.length}</b> of ${plural(all.length, K.label, K.plural)}</span></div>
+      <div class="panel desktop-only"><div class="table-wrap"><table class="dt">
+        <thead><tr><th>${K.Label}</th><th>Cars</th><th>Share of vault</th><th>Latest addition</th><th class="r"><span class="sr-only">Actions</span></th></tr></thead>
+        <tbody>${items.map(x => { const l = latestFor(x.id); return `<tr data-action="go" data-to="${kind}/${x.id}" tabindex="0" aria-label="View ${esc(x.name)}">
+          <td><div class="tx-cell"><span class="tx-swatch" style="--c:${x.color}">${ic(K.icon, 'sm')}</span>${esc(x.name)}</div></td>
+          <td class="num-cell">${x.count}</td>
+          <td>${share(x)}</td>
+          <td class="muted">${l ? `${esc(l.name)}<br><small>${fmtDate(l.dateAdded)}</small>` : 'No cars yet'}</td>
+          <td class="row-actions">
+            <button class="icon-btn" data-action="add-car" data-${kind}="${x.id}" aria-label="Add a car to ${esc(x.name)}" title="Add a car">${ic('plus', 'sm')}</button>
+            <button class="icon-btn" data-action="edit-tax" data-kind="${kind}" data-id="${x.id}" aria-label="Edit ${esc(x.name)}" title="Edit">${ic('edit', 'sm')}</button>
+            <button class="icon-btn danger" data-action="delete-tax" data-kind="${kind}" data-id="${x.id}" aria-label="Delete ${esc(x.name)}" title="Delete">${ic('trash', 'sm')}</button>
+          </td></tr>`; }).join('')}</tbody></table></div></div>
+      <div class="mcards mobile-only">${items.map(x => `<article class="mcard" style="--c:${x.color}">
+        <div class="mcard-top" data-action="go" data-to="${kind}/${x.id}" role="button" tabindex="0">
+          <span class="tx-swatch" style="--c:${x.color}">${ic(K.icon, 'sm')}</span>
+          <div class="grow"><b>${esc(x.name)}</b><small>${plural(x.count, 'car')}</small></div>
+        </div>
+        ${share(x)}
+        <div class="mcard-actions">
+          <button class="btn" data-action="go" data-to="${kind}/${x.id}">${ic('eye', 'sm')}Cars</button>
+          <button class="btn" data-action="edit-tax" data-kind="${kind}" data-id="${x.id}">${ic('edit', 'sm')}Edit</button>
+          <button class="btn btn-danger" data-action="delete-tax" data-kind="${kind}" data-id="${x.id}">${ic('trash', 'sm')}Delete</button>
+        </div></article>`).join('')}</div>`;
+    }
+  };
+}
+Views.brands = taxonomyView('brand');
+Views.categories = taxonomyView('category');
+
+/* ---------- Brand / Category filter view ---------- */
+function detailView(kind) {
+  const K = KINDS[kind], O = KINDS[K.other];
+  return {
+    title: K.Label,
+    render(route) {
+      const item = Store.get(kind, route.id);
+      if (!item) return `<a class="back" href="#/${K.route}">${ic('back', 'sm')}${K.Plural}</a><div class="panel">${emptyBlock({ title: `This ${K.label} isn’t in your vault`, text: 'It may have been deleted or renamed on another device.', actions: `<a class="btn" href="#/${K.route}">See all ${K.plural}</a>` })}</div>`;
+      const cars = Store.carsFor(kind, item.id), total = Store.state.cars.length;
+      const breakdown = new Map();
+      cars.forEach(c => breakdown.set(c[O.field], (breakdown.get(c[O.field]) || 0) + 1));
+      const others = [...breakdown.entries()].map(([id, n]) => ({ item: Store.get(K.other, id), n })).sort((a, b) => b.n - a.n);
+      return `<a class="back" href="#/${K.route}">${ic('back', 'sm')}${K.Plural}</a>
+      <section class="tx-hero" style="--c:${item.color}">
+        <div style="position:relative;z-index:1;min-width:0">
+          <span class="tx-kind">${ic(K.icon, 'sm')}${K.Label}</span>
+          <h1 class="tx-name display">${esc(item.name)}</h1>
+          <p class="tx-sub">${cars.length ? `${pct(cars.length, total)}% of your vault, newest added ${fmtDate(cars.slice().sort(byNewest)[0].dateAdded)}.` : `No cars in this ${K.label} yet.`}</p>
+        </div>
+        <div class="tx-count"><b data-count="${cars.length}">${cars.length}</b><small>${cars.length === 1 ? 'car' : 'cars'} collected</small></div>
+        <div class="tx-actions">
+          <button class="btn btn-primary" data-action="add-car" data-${kind}="${item.id}">${ic('plus', 'sm')}Add car</button>
+          <button class="btn" data-action="edit-tax" data-kind="${kind}" data-id="${item.id}">${ic('edit', 'sm')}Edit ${K.label}</button>
+          <button class="btn btn-danger" data-action="delete-tax" data-kind="${kind}" data-id="${item.id}">${ic('trash', 'sm')}Delete</button>
+        </div>
+      </section>
+      ${others.length ? `<section class="panel mt"><div class="panel-head"><div><h2>Across ${O.plural}</h2><p>How these cars split by ${O.label}</p></div></div>
+        <div class="chips-row">${others.map(o => chip(K.other, o.item, `<span class="n">${o.n}</span>`)).join('')}</div></section>` : ''}
+      ${cars.length ? `<div class="toolbar panel mt" role="search" style="grid-template-columns:1fr"><label class="search"><span class="sr-only">Search these cars</span>${ic('search', 'sm')}<input class="input" id="detail-q" type="search" placeholder="Search ${plural(cars.length, 'car')} from ${esc(item.name)}" value="${esc(UI.detailQ)}" autocomplete="off"></label></div>` : ''}
+      <div id="detail-results" class="${cars.length ? '' : 'mt'}"></div>`;
+    },
+    mount(view, route) { this.results(view, route); },
+    results(view = $('#view'), route = UI.route) {
+      const box = $('#detail-results', view); if (!box) return;
+      const item = Store.get(kind, route.id); if (!item) return;
+      const cars = Store.carsFor(kind, item.id);
+      if (!cars.length) { box.innerHTML = `<div class="panel">${emptyBlock({ title: `No cars from ${esc(item.name)} yet`, text: `Add a car and choose ${esc(item.name)} as its ${K.label}.`, actions: `<button class="btn btn-primary" data-action="add-car" data-${kind}="${item.id}">${ic('plus', 'sm')}Add car</button>` })}</div>`; return; }
+      const list = sortCars(filterCars(cars, UI.detailQ), 'newest');
+      box.innerHTML = list.length
+        ? `<div class="results-meta"><span>Showing <b>${list.length}</b> of ${plural(cars.length, 'car')}</span></div>${carResults(list, { hide: kind })}`
+        : `<div class="panel">${emptyBlock({ title: 'No matches', text: `No cars in ${esc(item.name)} match “${esc(UI.detailQ)}”.` })}</div>`;
+    }
+  };
+}
+Views.brand = detailView('brand');
+Views.category = detailView('category');
+</script>
+<script>
+'use strict';
+/* ---------- Settings view ---------- */
+const FIRESTORE_RULES = `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /vaults/{vaultId}/{collection}/{docId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}`;
+
+Views.settings = {
+  title: 'Settings',
+  render() {
+    const st = Settings.data, s = Store.state;
+    const fb = Store.mode === 'firebase';
+    const cfg = Settings.firebaseConfig();
+    const theme = st.theme;
+    const val = k => (cfg[k] && !/^YOUR_/i.test(cfg[k])) ? cfg[k] : '';
+    return pageHead('Settings', 'Choose where your vault lives, how it looks, and manage your data.') + `
+    <div class="settings-grid">
+      <section class="panel span-2">
+        <div class="set-head">
+          <span class="set-ic" style="--c:#3D7BFF">${ic('db')}</span>
+          <div><h2>Data source</h2><p>Switch storage without losing anything. The app works fully offline on this device.</p></div>
+          <span class="pill status" style="--sc:${fb ? '#2EC4B6' : '#3CCB8B'}"><span class="live-dot"></span>${fb ? 'Synced with Firebase' : (Store.adapter && Store.adapter.memoryOnly ? 'Temporary (storage blocked)' : 'Saved on this device')}</span>
+        </div>
+        <div class="set-body">
+          <div class="mode-cards" role="radiogroup" aria-label="Data source">
+            <button class="mode-card ${fb ? '' : 'on'}" style="--c:#3CCB8B" role="radio" aria-checked="${!fb}" data-action="set-mode" data-mode="local">
+              <span class="set-ic" style="--c:#3CCB8B">${ic('db')}</span><span><b>This device</b><small>LocalStorage. Instant, private and offline. No account needed.</small></span><span class="tick">${ic('check')}</span></button>
+            <button class="mode-card ${fb ? 'on' : ''}" style="--c:#2EC4B6" role="radio" aria-checked="${fb}" data-action="set-mode" data-mode="firebase">
+              <span class="set-ic" style="--c:#2EC4B6">${ic('cloud')}</span><span><b>Firebase cloud</b><small>One shared vault in Cloud Firestore. Every device sees the same data, no login.</small></span><span class="tick">${ic('check')}</span></button>
+          </div>
+
+          <form id="fb-form" novalidate>
+            <div class="fb-grid">${FIREBASE_FIELDS.map(([k, l]) => `<div class="field"><label class="lbl" for="fb-${k}">${l}</label><input class="input" id="fb-${k}" name="${k}" value="${esc(val(k))}" placeholder="${esc(FIREBASE_CONFIG[k])}" autocomplete="off" spellcheck="false"></div>`).join('')}</div>
+            <label class="check" style="margin-top:16px;accent-color:var(--blue)"><input type="checkbox" id="fb-migrate" ${st.migrate ? 'checked' : ''} style="accent-color:var(--blue)"> Copy this device’s vault to Firebase if the cloud vault is empty</label>
+            <div class="set-actions">
+              <button type="button" class="btn" data-action="save-fb">${ic('check', 'sm')}Save keys</button>
+              <button type="button" class="btn btn-primary" data-action="set-mode" data-mode="firebase">${ic('cloud', 'sm')}${fb ? 'Reconnect to Firebase' : 'Connect to Firebase'}</button>
+              ${fb ? `<button type="button" class="btn btn-ghost" data-action="set-mode" data-mode="local">Use this device instead</button>` : ''}
+            </div>
+          </form>
+
+          <p class="note">${ic('info', 'sm')}<span>No login is needed. Every device that opens this app shares the vault stored at <b>vaults/${VAULT_ID}</b>, and changes appear on other devices within seconds. Anyone who has the app’s link can see and edit this vault.</span></p>
+          <details class="rules"><summary>Recommended Firestore security rules</summary><pre>${esc(FIRESTORE_RULES)}</pre></details>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="set-head"><span class="set-ic" style="--c:#E0459B">${ic('sparkle')}</span><div><h2>Appearance</h2><p>Theme and motion</p></div></div>
+        <div class="set-body">
+          <div class="set-row"><div><b>Theme</b><small>Dark is the showroom look. System follows your device.</small></div></div>
+          <div class="seg" role="radiogroup" aria-label="Theme" style="margin-bottom:16px">
+            ${[['dark', 'moon', 'Dark'], ['light', 'sun', 'Light'], ['system', 'monitor', 'System']].map(([v, i, l]) => `<button class="${theme === v ? 'on' : ''}" role="radio" aria-checked="${theme === v}" data-action="set-theme" data-theme="${v}">${ic(i, 'sm')}${l}</button>`).join('')}
+          </div>
+          <div class="set-row"><div><b>Reduce motion</b><small>Turns off animations and the moving background.</small></div>
+            <label class="switch"><span class="sr-only">Reduce motion</span><input type="checkbox" id="set-motion" ${st.reduceMotion ? 'checked' : ''}><span></span></label></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="set-head"><span class="set-ic" style="--c:#F2B544">${ic('download')}</span><div><h2>Your data</h2><p>${plural(s.cars.length, 'car')}, ${plural(s.brands.length, 'brand')}, ${plural(s.categories.length, 'category', 'categories')}</p></div></div>
+        <div class="set-body">
+          <div class="data-btns">
+            <button class="btn" data-action="export">${ic('download', 'sm')}Export backup</button>
+            <button class="btn" data-action="import">${ic('upload', 'sm')}Import backup</button>
+            <button class="btn btn-danger" style="grid-column:1/-1" data-action="erase-all">${ic('trash', 'sm')}Erase everything</button>
+          </div>
+          <p class="note">${ic('info', 'sm')}<span>Backups are JSON files you can import on any device, in either data source.</span></p>
+        </div>
+      </section>
+
+      <section class="panel span-2">
+        <div class="set-head"><span class="set-ic" style="--c:#9AA6B8">${ic('keyboard')}</span><div><h2>About ${APP.name}</h2><p>Version ${APP.version}</p></div></div>
+        <div class="set-body">
+          <dl class="kv">
+            <dt>Add a car</dt><dd><kbd>N</kbd></dd>
+            <dt>Search the collection</dt><dd><kbd>/</kbd></dd>
+            <dt>Close a dialog</dt><dd><kbd>Esc</kbd></dd>
+            <dt>Storage key on this device</dt><dd>${APP.dataKey}</dd>
+          </dl>
+        </div>
+      </section>
+    </div>`;
+  }
+};
+
+/* =============================================================================
+   Toasts
+   ============================================================================= */
+const Toast = {
+  icons: { success: 'check', error: 'alert', info: 'info', warn: 'alert' },
+  show(html, type = 'success', { action = null, duration = 4200 } = {}) {
+    const el = document.createElement('div');
+    el.className = `toast t-${type}`;
+    el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    el.innerHTML = `<span class="t-ic">${ic(this.icons[type] || 'info', 'sm')}</span><span class="t-msg">${html}</span>${action ? `<button class="t-act">${esc(action.label)}</button>` : ''}<button class="t-x" aria-label="Dismiss">${ic('x', 'sm')}</button><span class="t-bar" style="animation-duration:${duration}ms"></span>`;
+    $('#toasts').appendChild(el);
+    while ($('#toasts').children.length > 4) $('#toasts').firstElementChild.remove();
+    const kill = () => { if (el.dataset.dead) return; el.dataset.dead = '1'; el.classList.add('out'); setTimeout(() => el.remove(), 260); };
+    const timer = setTimeout(kill, duration);
+    el.querySelector('.t-x').onclick = kill;
+    if (action) el.querySelector('.t-act').onclick = () => { clearTimeout(timer); kill(); action.run(); };
+  }
+};
+const undoAction = (inverse, doneMsg) => ({ label: 'Undo', run: async () => { const r = await Store.commit(inverse); Toast.show(r.ok ? doneMsg : esc(r.error), r.ok ? 'info' : 'error'); } });
+
+/* =============================================================================
+   Modals
+   ============================================================================= */
+const Modal = {
+  stack: [], seq: 0,
+  open({ title, body, footer = '', size = '', onClose = null }) {
+    const n = ++this.seq;
+    const wrap = document.createElement('div');
+    wrap.className = 'backdrop';
+    wrap.innerHTML = `<div class="modal ${size}" role="dialog" aria-modal="true" aria-labelledby="mt-${n}">
+      <div class="modal-head"><h2 class="modal-title" id="mt-${n}">${title}</h2><button class="icon-btn" data-close aria-label="Close">${ic('x')}</button></div>
+      <div class="modal-body">${body}</div>${footer ? `<div class="modal-foot">${footer}</div>` : ''}</div>`;
+    $('#modal-root').appendChild(wrap);
+    document.body.classList.add('modal-open');
+    const prevFocus = document.activeElement;
+    let closed = false;
+    const api = {
+      el: wrap.querySelector('.modal'), wrap,
+      close: () => {
+        if (closed) return; closed = true;
+        this.stack = this.stack.filter(m => m !== api);
+        wrap.classList.add('closing');
+        setTimeout(() => wrap.remove(), 200);
+        if (!this.stack.length) document.body.classList.remove('modal-open');
+        if (prevFocus && prevFocus.isConnected) prevFocus.focus({ preventScroll: true });
+        if (onClose) onClose();
+      }
+    };
+    wrap.addEventListener('mousedown', e => { if (e.target === wrap) api.close(); });
+    wrap.addEventListener('click', e => { if (e.target.closest('[data-close]')) { e.preventDefault(); api.close(); } });
+    this.stack.push(api);
+    setTimeout(() => {
+      const f = api.el.querySelector('[autofocus]') || api.el.querySelector('.modal-body input:not([type=hidden]):not([type=radio]):not([type=checkbox]), .modal-body select, .modal-body textarea') || api.el.querySelector('.modal-foot .btn-primary, .modal-foot .btn-danger-solid, .modal-foot .btn');
+      if (f) f.focus({ preventScroll: true });
+    }, 60);
+    return api;
+  },
+  top() { return this.stack[this.stack.length - 1]; },
+  closeAll() { [...this.stack].reverse().forEach(m => m.close()); }
+};
+
+function confirmDialog({ title, message, confirm = 'Confirm', danger = false }) {
+  return new Promise(resolve => {
+    let ok = false;
+    const m = Modal.open({
+      title, size: 'sm',
+      body: `<div class="confirm ${danger ? 'is-danger' : ''}"><span class="confirm-ic">${ic(danger ? 'trash' : 'info')}</span><p>${message}</p></div>`,
+      footer: `<button class="btn" data-close>Cancel</button><button class="btn ${danger ? 'btn-danger-solid' : 'btn-primary'}" data-ok>${confirm}</button>`,
+      onClose: () => resolve(ok)
+    });
+    m.el.querySelector('[data-ok]').onclick = () => { ok = true; m.close(); };
+  });
+}
+
+function showErrors(form, errors) {
+  $$('.field', form).forEach(f => { f.classList.remove('invalid'); const e = $('.err', f); if (e) e.textContent = ''; });
+  let first = null;
+  Object.entries(errors || {}).forEach(([k, msg]) => {
+    const input = form.elements[k]; if (!input) return;
+    const field = (input.length && !input.tagName ? input[0] : input).closest('.field'); if (!field) return;
+    void field.offsetWidth; field.classList.add('invalid');
+    const e = $('.err', field); if (e) e.textContent = msg;
+    if (!first) first = input.length && !input.tagName ? input[0] : input;
+  });
+  if (first) first.focus();
+}
+function clearErrorOnInput(form) {
+  form.addEventListener('input', e => { const f = e.target.closest('.field'); if (f) { f.classList.remove('invalid'); const er = $('.err', f); if (er) er.textContent = ''; } });
+}
+
+/* ---------- Car: add / edit ---------- */
+function openCarForm(car = null, preset = {}) {
+  const s = Store.state;
+  if (!car && (!s.brands.length || !s.categories.length)) {
+    const missing = !s.brands.length ? 'brand' : 'category';
+    const m = Modal.open({
+      title: 'One step first', size: 'sm',
+      body: `<div class="confirm"><span class="confirm-ic">${ic('info')}</span><p>Every car needs a brand and a category. Create a ${missing} first, then add your car.</p></div>`,
+      footer: `<button class="btn" data-close>Not now</button><button class="btn btn-primary" data-go>${ic('plus', 'sm')}Create a ${missing}</button>`
+    });
+    m.el.querySelector('[data-go]').onclick = () => { m.close(); openTaxForm(missing, null, () => openCarForm(null, preset)); };
+    return;
+  }
+  const v = car ? { ...car } : { name: '', brandId: preset.brand || '', categoryId: preset.category || '', dateAdded: todayISO(), scale: '1:64', notes: '' };
+  const options = (kind, sel) => Store.list(kind).slice().sort((a, b) => a.name.localeCompare(b.name))
+    .map(x => `<option value="${x.id}" ${x.id === sel ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
+  const m = Modal.open({
+    title: car ? 'Edit car' : 'Add a car',
+    body: `<form id="car-form" class="form-grid" novalidate>
+      <div class="field full"><label class="lbl" for="cf-name">Car name <small>Required</small></label>
+        <input class="input" id="cf-name" name="name" maxlength="80" value="${esc(v.name)}" placeholder="e.g. Nissan Skyline GT-R (R34)" autocomplete="off"><div class="err"></div></div>
+      <div class="field"><label class="lbl" for="cf-brand">Brand <small>Required</small></label>
+        <select class="input" id="cf-brand" name="brandId"><option value="">Choose a brand</option>${options('brand', v.brandId)}<option value="__new">+ Create a new brand</option></select><div class="err"></div></div>
+      <div class="field"><label class="lbl" for="cf-category">Category <small>Required</small></label>
+        <select class="input" id="cf-category" name="categoryId"><option value="">Choose a category</option>${options('category', v.categoryId)}<option value="__new">+ Create a new category</option></select><div class="err"></div></div>
+      <div class="field"><label class="lbl" for="cf-date">Date added <small>Required</small></label>
+        <input class="input" type="date" id="cf-date" name="dateAdded" value="${esc(v.dateAdded)}" max="${todayISO()}"><div class="err"></div></div>
+      <div class="field"><label class="lbl" for="cf-scale">Scale <small>Optional</small></label>
+        <select class="input" id="cf-scale" name="scale"><option value="">Not set</option>${SCALES.map(x => `<option ${x === v.scale ? 'selected' : ''}>${x}</option>`).join('')}</select><div class="err"></div></div>
+      <div class="field full"><label class="lbl" for="cf-notes">Notes <small id="cf-count">${(v.notes || '').length}/280</small></label>
+        <textarea class="input" id="cf-notes" name="notes" maxlength="280" placeholder="Variant, packaging, where you found it…">${esc(v.notes)}</textarea><div class="err"></div></div>
+    </form>`,
+    footer: `<button class="btn" data-close>Cancel</button><button class="btn btn-primary" type="submit" form="car-form">${ic('check', 'sm')}${car ? 'Save changes' : 'Add to vault'}</button>`
+  });
+  const form = $('#car-form', m.el);
+  clearErrorOnInput(form);
+  form.notes.addEventListener('input', () => { $('#cf-count', m.el).textContent = `${form.notes.value.length}/280`; });
+  ['brand', 'category'].forEach(kind => {
+    const sel = form[KINDS[kind].field];
+    let last = sel.value;
+    sel.addEventListener('change', () => {
+      if (sel.value !== '__new') { last = sel.value; return; }
+      sel.value = last;
+      openTaxForm(kind, null, item => {
+        const o = document.createElement('option'); o.value = item.id; o.textContent = item.name;
+        sel.insertBefore(o, sel.lastElementChild); sel.value = item.id; last = item.id;
+        sel.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    });
+  });
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    const btn = m.el.querySelector('.modal-foot .btn-primary');
+    btn.classList.add('loading');
+    const res = await Store.saveCar(data, car ? car.id : null);
+    btn.classList.remove('loading');
+    if (res.errors) return showErrors(form, res.errors);
+    if (!res.ok) return Toast.show(esc(res.error), 'error');
+    m.close();
+    Toast.show(car ? `Saved changes to <b>${esc(res.item.name)}</b>.` : `Added <b>${esc(res.item.name)}</b> to your vault.`, 'success',
+      car ? {} : { action: { label: 'View', run: () => openCarView(res.item.id) } });
+  });
+}
+
+/* ---------- Car: view ---------- */
+function openCarView(id) {
+  const c = Store.get('car', id);
+  if (!c) return Toast.show('That car is no longer in your vault.', 'warn');
+  const b = brandOf(c), k = categoryOf(c);
+  const m = Modal.open({
+    title: 'Car details',
+    body: `<div class="showcase" style="--c:${colorOf(b)}">${carSVG()}</div>
+      <h3 class="showcase-name">${esc(c.name)}</h3>
+      <dl class="specs">
+        <div class="spec"><dt>Brand</dt><dd>${chip('brand', b)}</dd></div>
+        <div class="spec"><dt>Category</dt><dd>${chip('category', k)}</dd></div>
+        <div class="spec"><dt>Date added</dt><dd>${fmtDate(c.dateAdded)}</dd></div>
+        <div class="spec"><dt>Scale</dt><dd>${c.scale ? esc(c.scale) : 'Not set'}</dd></div>
+        ${c.notes ? `<div class="spec full"><dt>Notes</dt><dd class="notes">${esc(c.notes)}</dd></div>` : ''}
+      </dl>`,
+    footer: `<button class="btn btn-danger" data-del>${ic('trash', 'sm')}Delete</button><span class="spacer"></span><button class="btn" data-close>Close</button><button class="btn btn-primary" data-edit>${ic('edit', 'sm')}Edit</button>`
+  });
+  m.el.querySelector('[data-edit]').onclick = () => { m.close(); openCarForm(Store.get('car', id)); };
+  m.el.querySelector('[data-del]').onclick = async () => { if (await deleteCarFlow(id)) m.close(); };
+  $$('.chip', m.el).forEach(a => a.addEventListener('click', () => Modal.closeAll()));
+}
+
+async function deleteCarFlow(id) {
+  const c = Store.get('car', id); if (!c) return false;
+  const ok = await confirmDialog({ title: 'Delete this car?', message: `<b>${esc(c.name)}</b> will be removed from your vault. You can undo this right after.`, confirm: 'Delete car', danger: true });
+  if (!ok) return false;
+  const res = await Store.deleteCar(id);
+  if (!res.ok) { Toast.show(esc(res.error), 'error'); return false; }
+  Toast.show(`Deleted <b>${esc(c.name)}</b>.`, 'success', { action: undoAction(res.inverse, `Restored <b>${esc(c.name)}</b>.`), duration: 6000 });
+  return true;
+}
+
+/* ---------- Brand / Category: create & edit ---------- */
+function openTaxForm(kind, item = null, onSaved = null) {
+  const K = KINDS[kind];
+  const used = new Set(Store.list(kind).map(x => x.color));
+  const color = item ? item.color : (PALETTE.find(p => !used.has(p.hex)) || PALETTE[Store.list(kind).length % PALETTE.length]).hex;
+  const m = Modal.open({
+    title: item ? `Edit ${K.label}` : `New ${K.label}`, size: 'sm',
+    body: `<form id="tax-form" novalidate>
+      <div class="field"><label class="lbl" for="tf-name">${K.Label} name <small>Required</small></label>
+        <input class="input" id="tf-name" name="name" maxlength="40" value="${esc(item ? item.name : '')}" placeholder="${kind === 'brand' ? 'e.g. Hot Wheels' : 'e.g. JDM'}" autocomplete="off"><div class="err"></div></div>
+      <div class="field" style="margin-top:18px"><span class="lbl">Colour <small>Used across charts and tags</small></span>
+        <div class="swatches" role="radiogroup" aria-label="Colour">${PALETTE.map(p => `<label class="swatch" title="${p.name}"><input type="radio" name="color" value="${p.hex}" ${p.hex === color ? 'checked' : ''} aria-label="${p.name}"><span style="--c:${p.hex}"></span></label>`).join('')}</div><div class="err"></div></div>
+      <div class="preview-chip">Preview <span id="tf-preview">${chip(kind, { id: '', name: item ? item.name : `New ${K.label}`, color })}</span></div>
+    </form>`,
+    footer: `<button class="btn" data-close>Cancel</button><button class="btn btn-primary" type="submit" form="tax-form">${ic('check', 'sm')}${item ? 'Save changes' : `Create ${K.label}`}</button>`
+  });
+  const form = $('#tax-form', m.el);
+  clearErrorOnInput(form);
+  const preview = () => { const c = form.querySelector('[name=color]:checked'); $('#tf-preview', m.el).innerHTML = chip(kind, { id: '', name: norm(form.name.value) || `New ${K.label}`, color: c ? c.value : FALLBACK_COLOR }).replace('<a ', '<span ').replace('</a>', '</span>'); };
+  preview();
+  form.addEventListener('input', preview);
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const c = form.querySelector('[name=color]:checked');
+    const res = await Store.saveTax(kind, { name: form.name.value, color: c ? c.value : '' }, item ? item.id : null);
+    if (res.errors) return showErrors(form, res.errors);
+    if (!res.ok) return Toast.show(esc(res.error), 'error');
+    m.close();
+    Toast.show(item ? `Saved ${K.label} <b>${esc(res.item.name)}</b>.` : `Created ${K.label} <b>${esc(res.item.name)}</b>.`);
+    if (onSaved) onSaved(res.item);
+  });
+}
+
+/* ---------- Brand / Category: safe delete with reassignment ---------- */
+async function deleteTaxFlow(kind, id) {
+  const K = KINDS[kind];
+  const item = Store.get(kind, id); if (!item) return;
+  const linked = Store.carsFor(kind, id);
+  const after = res => {
+    if (!res.ok) return Toast.show(esc(res.error), 'error');
+    if (UI.route.name === kind && UI.route.id === id) location.hash = `#/${K.route}`;
+  };
+  if (!linked.length) {
+    const ok = await confirmDialog({ title: `Delete this ${K.label}?`, message: `<b>${esc(item.name)}</b> isn’t linked to any cars, so nothing else changes.`, confirm: `Delete ${K.label}`, danger: true });
+    if (!ok) return;
+    const res = await Store.deleteTax(kind, id);
+    after(res);
+    if (res.ok) Toast.show(`Deleted ${K.label} <b>${esc(item.name)}</b>.`, 'success', { action: undoAction(res.inverse, `Restored <b>${esc(item.name)}</b>.`), duration: 6000 });
+    return;
+  }
+  const n = linked.length;
+  const targets = () => Store.list(kind).filter(x => x.id !== id).sort((a, b) => a.name.localeCompare(b.name));
+  const targetOptions = () => targets().map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
+  const m = Modal.open({
+    title: `Delete ${esc(item.name)}?`,
+    body: `<div class="warn-box">${ic('alert')}<div><b>${esc(item.name)} is linked to ${plural(n, 'car')}.</b>Choose what happens to ${n === 1 ? 'it' : 'them'} before this ${K.label} is deleted. Nothing changes until you confirm.</div></div>
+      <div class="affected">${linked.slice(0, 6).map(c => `<span class="chip static" style="--c:${item.color}"><span class="t">${esc(c.name)}</span></span>`).join('')}${n > 6 ? `<span class="chip static"><span class="t">and ${n - 6} more</span></span>` : ''}</div>
+      <form id="del-form">
+        <label class="opt selected" data-opt="reassign"><input type="radio" name="strategy" value="reassign" checked>
+          <span class="opt-body"><b>Move ${n === 1 ? 'the car' : `all ${n} cars`} to another ${K.label}</b><small>Recommended. Every car stays in your vault.</small>
+          <span class="opt-extra" id="reassign-extra"></span></span></label>
+        <label class="opt danger" data-opt="cascade"><input type="radio" name="strategy" value="cascade">
+          <span class="opt-body"><b>Delete the ${K.label} and its ${plural(n, 'car')}</b><small>Removes ${n === 1 ? 'this car' : 'these cars'} from your vault as well.</small>
+          <span class="opt-extra"><label class="check"><input type="checkbox" name="ack"> I understand ${plural(n, 'car')} will be deleted</label></span></span></label>
+      </form>`,
+    footer: `<button class="btn" data-close>Cancel</button><button class="btn btn-primary" data-confirm>Confirm</button>`
+  });
+  const form = $('#del-form', m.el), btn = m.el.querySelector('[data-confirm]');
+  const renderExtra = (sel = '') => {
+    const box = $('#reassign-extra', m.el);
+    box.innerHTML = targets().length
+      ? `<label class="sr-only" for="del-target">Move to</label><select class="input" id="del-target" name="target"><option value="">Choose a ${K.label}</option>${targetOptions()}</select>`
+      : `<span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><small style="margin:0">There’s no other ${K.label} yet.</small><button type="button" class="btn" data-new>${ic('plus', 'sm')}Create one</button></span>`;
+    if (sel && form.target) form.target.value = sel;
+    const nb = box.querySelector('[data-new]');
+    if (nb) nb.onclick = () => openTaxForm(kind, null, created => { renderExtra(created.id); sync(); });
+    if (form.target) form.target.onchange = sync;
+  };
+  const sync = () => {
+    const strat = form.strategy.value;
+    $$('.opt', m.el).forEach(o => o.classList.toggle('selected', o.dataset.opt === strat));
+    const target = form.target ? form.target.value : '';
+    if (strat === 'reassign') {
+      const t = target && Store.get(kind, target);
+      btn.className = 'btn btn-primary';
+      btn.innerHTML = `${ic('swap', 'sm')}${t ? `Move to ${esc(t.name)} and delete` : 'Move cars and delete'}`;
+      btn.disabled = !t;
+    } else {
+      btn.className = 'btn btn-danger-solid';
+      btn.innerHTML = `${ic('trash', 'sm')}Delete ${K.label} and ${plural(n, 'car')}`;
+      btn.disabled = !form.ack.checked;
+    }
+  };
+  renderExtra();
+  form.addEventListener('change', sync);
+  sync();
+  btn.onclick = async () => {
+    const strategy = form.strategy.value, targetId = form.target ? form.target.value : null;
+    const t = targetId && Store.get(kind, targetId);
+    btn.classList.add('loading');
+    const res = await Store.deleteTax(kind, id, { strategy, targetId });
+    btn.classList.remove('loading');
+    if (!res.ok) return Toast.show(esc(res.error), 'error');
+    m.close();
+    after(res);
+    Toast.show(strategy === 'reassign'
+      ? `Moved ${plural(n, 'car')} to <b>${esc(t.name)}</b> and deleted <b>${esc(item.name)}</b>.`
+      : `Deleted <b>${esc(item.name)}</b> and ${plural(n, 'car')}.`, 'success',
+      { action: undoAction(res.inverse, `Restored <b>${esc(item.name)}</b> and its cars.`), duration: 7000 });
+  };
+}
+
+/* =============================================================================
+   Router & chrome
+   ============================================================================= */
+const NAV = [
+  { id: 'dashboard', label: 'Dashboard', short: 'Home', icon: 'grid', c: '#3D7BFF' },
+  { id: 'collection', label: 'All collections', short: 'Cars', icon: 'car', c: '#E0459B', count: () => Store.state.cars.length },
+  { id: 'brands', label: 'Brands', short: 'Brands', icon: 'brand', c: '#F2B544', count: () => Store.state.brands.length },
+  { id: 'categories', label: 'Categories', short: 'Categories', icon: 'layers', c: '#2EC4B6', count: () => Store.state.categories.length },
+  { id: 'settings', label: 'Settings', short: 'Settings', icon: 'sliders', c: '#9AA6B8' }
+];
+
+function parseRoute() {
+  const [name, id] = location.hash.replace(/^#\/?/, '').split('/');
+  return { name: Views[name] ? name : 'dashboard', id: id ? decodeURIComponent(id) : null };
+}
+
+function renderChrome() {
+  $$('[data-logo]').forEach(a => { a.innerHTML = `${logoSVG()}<span class="wordmark display">ADDiecastVault<small>Diecast collection manager</small></span>`; a.setAttribute('aria-label', 'ADDiecastVault dashboard'); });
+  $('#side-nav').innerHTML = NAV.map(n => `<a href="#/${n.id}" data-nav="${n.id}" style="--nc:${n.c}" title="${n.label}">${ic(n.icon)}<span class="lbl">${n.label}</span>${n.count ? '<span class="count"></span>' : ''}</a>`).join('');
+  $('#bottom-nav').innerHTML = NAV.map(n => `<a href="#/${n.id}" data-nav="${n.id}" style="--nc:${n.c}">${ic(n.icon)}<span>${n.short}</span></a>`).join('');
+  $('#fab').innerHTML = ic('plus');
+}
+
+function updateChrome(route) {
+  const active = { brand: 'brands', category: 'categories' }[route.name] || route.name;
+  $$('[data-nav]').forEach(a => {
+    const on = a.dataset.nav === active;
+    a.classList.toggle('active', on);
+    if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    const n = NAV.find(x => x.id === a.dataset.nav), c = a.querySelector('.count');
+    if (c && n.count) c.textContent = n.count();
+  });
+  const fb = Store.mode === 'firebase';
+  const mem = Store.adapter && Store.adapter.memoryOnly;
+  const sc = fb ? '#2EC4B6' : mem ? '#F2B544' : '#3CCB8B';
+  $('#side-status').innerHTML = `<a class="status-card" href="#/settings" style="--sc:${sc}" title="Data source">
+    <span class="s-ic">${ic(fb ? 'cloud' : 'db', 'sm')}</span>
+    <span class="s-txt"><b><span class="live-dot"></span>${fb ? 'Synced with Firebase' : mem ? 'Temporary storage' : 'Saved on this device'}</b>
+    <small>${fb ? 'Cloud Firestore' : mem ? 'Browser storage is blocked' : 'LocalStorage, works offline'}</small></span></a>`;
+  $('#top-status').innerHTML = ic(fb ? 'cloud' : 'db');
+  $('#top-status').style.color = sc;
+  $('#top-theme').innerHTML = ic(document.documentElement.dataset.theme === 'light' ? 'moon' : 'sun');
+}
+
+function captureFocus() {
+  const a = document.activeElement;
+  if (!a || !a.id || a.closest('#modal-root')) return null;
+  return { id: a.id, s: a.selectionStart, e: a.selectionEnd };
+}
+function restoreFocus(f) {
+  if (!f) return;
+  const el = document.getElementById(f.id);
+  if (!el) return;
+  el.focus({ preventScroll: true });
+  try { if (f.s != null) el.setSelectionRange(f.s, f.e); } catch { /* not a text input */ }
+}
+
+function render(animate = false) {
+  const route = parseRoute();
+  if (animate && (route.name !== UI.route.name || route.id !== UI.route.id)) UI.detailQ = '';
+  UI.route = route;
+  const def = Views[route.name];
+  const view = $('#view');
+  const focus = animate ? null : captureFocus();
+  const scrollY = window.scrollY;
+  view.innerHTML = def.render(route);
+  if (def.mount) def.mount.call(def, view, route);
+  view.classList.toggle('play', animate && !reducedMotion());
+  $$('[data-count]', view).forEach(el => animateCount(el, +el.dataset.count, animate));
+  updateChrome(route);
+  if (animate) {
+    view.classList.remove('enter'); void view.offsetWidth; view.classList.add('enter');
+    window.scrollTo(0, 0);
+  } else {
+    window.scrollTo(0, scrollY);
+    restoreFocus(focus);
+  }
+  const name = route.id && Store.get(route.name, route.id) ? Store.get(route.name, route.id).name : def.title;
+  document.title = `${name} | ${APP.name}`;
+}
+
+function animateCount(el, to, animate) {
+  if (!animate || reducedMotion() || !to) { el.textContent = to; return; }
+  const dur = 1200, t0 = performance.now();
+  el.textContent = '0';
+  const step = t => {
+    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 4);
+    el.textContent = Math.round(to * e);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function refreshResults() {
+  const def = Views[UI.route.name];
+  if (def && def.results) def.results.call(def, $('#view'), UI.route);
+}
+
+/* =============================================================================
+   Theme & motion
+   ============================================================================= */
+const mqLight = matchMedia('(prefers-color-scheme: light)');
+function applyTheme() {
+  const t = Settings.data.theme;
+  const resolved = t === 'system' ? (mqLight.matches ? 'light' : 'dark') : t;
+  document.documentElement.dataset.theme = resolved;
+  document.documentElement.dataset.motion = Settings.data.reduceMotion ? 'reduced' : 'full';
+  const meta = $('meta[name="theme-color"]'); if (meta) meta.content = resolved === 'light' ? '#ECEFF5' : '#0D1220';
+}
+mqLight.addEventListener && mqLight.addEventListener('change', () => { if (Settings.data.theme === 'system') { applyTheme(); updateChrome(UI.route); } });
+
+/* =============================================================================
+   Data source switching, import / export
+   ============================================================================= */
+function readFirebaseForm() {
+  const form = $('#fb-form'); if (!form) return null;
+  const out = {};
+  FIREBASE_FIELDS.forEach(([k]) => { out[k] = norm(form.elements[k].value); });
+  return out;
+}
+
+async function switchMode(mode, btn) {
+  if (mode === 'firebase') {
+    const keys = readFirebaseForm();
+    if (keys) Settings.save({ firebase: keys, migrate: $('#fb-migrate') ? $('#fb-migrate').checked : Settings.data.migrate });
+    if (!FirebaseAdapter.isConfigured(Settings.firebaseConfig())) {
+      Toast.show('Add your Firebase API key, auth domain, project ID and app ID, then connect.', 'warn', { duration: 6000 });
+      const first = FIREBASE_FIELDS.map(([k]) => $(`#fb-${k}`)).find(i => i && !i.value);
+      if (first) first.focus();
+      return;
+    }
+  } else if (Store.mode === 'local') { return; }
+  if (btn) btn.classList.add('loading');
+  try {
+    await Store.connect(mode, { seedFrom: mode === 'firebase' && Settings.data.migrate ? clone(Store.state) : null });
+    Settings.save({ mode });
+    Toast.show(mode === 'firebase' ? 'Connected. Your vault now syncs with Firebase.' : 'Switched to this device. Your vault is stored in LocalStorage.', 'success');
+  } catch (err) {
+    console.error(err);
+    Toast.show(`Couldn’t connect to Firebase. ${esc(err.message || err)} Your vault stays on this device.`, 'error', { duration: 8000 });
+  } finally { if (btn && btn.isConnected) btn.classList.remove('loading'); }
+}
+
+function exportData() {
+  const payload = { app: APP.name, version: APP.version, exportedAt: new Date().toISOString(), ...clone(Store.state) };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `addiecastvault-backup-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  Toast.show(`Exported ${plural(Store.state.cars.length, 'car')} to a backup file.`);
+}
+
+function normalizeImport(obj) {
+  if (!obj || !Array.isArray(obj.brands) || !Array.isArray(obj.categories) || !Array.isArray(obj.cars)) throw new Error('This file isn’t an ADDiecastVault backup.');
+  const dedupe = list => {
+    const seen = new Map(), map = new Map(), out = [];
+    list.forEach((x, i) => {
+      if (!x || !x.id || !norm(x.name)) return;
+      const k = nameKey(x.name);
+      if (seen.has(k)) { map.set(String(x.id), seen.get(k)); return; }
+      const item = { id: String(x.id), name: norm(x.name).slice(0, 40), color: isHex(x.color) ? x.color : PALETTE[i % PALETTE.length].hex, createdAt: x.createdAt || new Date().toISOString() };
+      seen.set(k, item.id); map.set(item.id, item.id); out.push(item);
+    });
+    return { out, map };
+  };
+  const b = dedupe(obj.brands), c = dedupe(obj.categories);
+  let skipped = 0;
+  const cars = obj.cars.filter(x => {
+    const ok = x && x.id && norm(x.name) && b.map.has(String(x.brandId)) && c.map.has(String(x.categoryId));
+    if (!ok) skipped++;
+    return ok;
+  }).map(x => ({ ...x, id: String(x.id), name: norm(x.name).slice(0, 80), brandId: b.map.get(String(x.brandId)), categoryId: c.map.get(String(x.categoryId)), dateAdded: isISODate(x.dateAdded) ? x.dateAdded : todayISO(), scale: SCALES.includes(x.scale) ? x.scale : '', notes: String(x.notes || '').slice(0, 280) }));
+  return { data: { brands: b.out, categories: c.out, cars }, skipped };
+}
+
+function importFile(file) {
+  const reader = new FileReader();
+  reader.onload = async () => {
+    let parsed;
+    try { parsed = normalizeImport(JSON.parse(reader.result)); }
+    catch (err) { return Toast.show(esc(err.message.includes('JSON') ? 'This file isn’t valid JSON.' : err.message), 'error'); }
+    const { data, skipped } = parsed;
+    const ok = await confirmDialog({
+      title: 'Replace your vault?',
+      message: `Import <b>${plural(data.cars.length, 'car')}</b>, ${plural(data.brands.length, 'brand')} and ${plural(data.categories.length, 'category', 'categories')} from <b>${esc(file.name)}</b>. This replaces everything currently in your vault.${skipped ? ` ${plural(skipped, 'car')} will be skipped because their brand or category is missing.` : ''}`,
+      confirm: 'Import and replace'
+    });
+    if (!ok) return;
+    const res = await Store.replaceAll(data);
+    Toast.show(res.ok ? `Imported ${plural(data.cars.length, 'car')}.` : esc(res.error), res.ok ? 'success' : 'error');
+  };
+  reader.onerror = () => Toast.show('That file couldn’t be read.', 'error');
+  reader.readAsText(file);
+}
+
+/* =============================================================================
+   Actions (event delegation)
+   ============================================================================= */
+const Actions = {
+  'add-car': el => openCarForm(null, { brand: el.dataset.brand, category: el.dataset.category }),
+  'view-car': el => openCarView(el.dataset.id),
+  'edit-car': el => { Modal.closeAll(); const c = Store.get('car', el.dataset.id); if (c) openCarForm(c); },
+  'delete-car': el => deleteCarFlow(el.dataset.id),
+  'go': el => { Modal.closeAll(); location.hash = `#/${el.dataset.to}`; },
+  'add-tax': el => openTaxForm(el.dataset.kind),
+  'edit-tax': el => { const x = Store.get(el.dataset.kind, el.dataset.id); if (x) openTaxForm(el.dataset.kind, x); },
+  'delete-tax': el => deleteTaxFlow(el.dataset.kind, el.dataset.id),
+  'clear-filters': () => {
+    Object.assign(UI.filters, { q: '', brand: '', category: '' });
+    const v = $('#view');
+    if ($('#f-q', v)) { $('#f-q', v).value = ''; $('#f-brand', v).value = ''; $('#f-category', v).value = ''; }
+    refreshResults();
+  },
+  'set-mode': el => switchMode(el.dataset.mode, el.classList.contains('btn') ? el : null),
+  'save-fb': () => {
+    const keys = readFirebaseForm();
+    Settings.save({ firebase: keys, migrate: $('#fb-migrate').checked });
+    Toast.show(FirebaseAdapter.isConfigured(Settings.firebaseConfig()) ? 'Firebase keys saved on this device.' : 'Keys saved. Fill in the remaining required fields to connect.', FirebaseAdapter.isConfigured(Settings.firebaseConfig()) ? 'success' : 'info');
+  },
+  'set-theme': el => { Settings.save({ theme: el.dataset.theme }); applyTheme(); render(false); },
+  'toggle-theme': () => { Settings.save({ theme: document.documentElement.dataset.theme === 'light' ? 'dark' : 'light' }); applyTheme(); render(false); },
+  'export': () => exportData(),
+  'import': () => { const f = $('#import-file'); f.value = ''; f.click(); },
+  'erase-all': async () => {
+    const n = Store.state.cars.length;
+    if (!(await confirmDialog({ title: 'Erase everything?', message: `This permanently deletes ${plural(n, 'car')}, every brand and every category from the current data source. Export a backup first if you might need it.`, confirm: 'Erase vault', danger: true }))) return;
+    const res = await Store.replaceAll(emptyState());
+    Toast.show(res.ok ? 'Your vault is now empty.' : esc(res.error), res.ok ? 'info' : 'error');
+  }
+};
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled) return;
+  const fn = Actions[el.dataset.action];
+  if (!fn) return;
+  e.preventDefault();
+  fn(el, e);
+});
+
+document.addEventListener('keydown', e => {
+  const top = Modal.top();
+  if (e.key === 'Escape' && top) { e.preventDefault(); top.close(); return; }
+  if (e.key === 'Tab' && top) { // keep focus inside the open dialog
+    const f = $$('button:not([disabled]), [href], input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])', top.el).filter(x => x.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    return;
+  }
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
+  if ((e.key === 'Enter' || e.key === ' ') && !typing) {
+    const el = document.activeElement;
+    if (el && el.dataset && el.dataset.action && !/^(BUTTON|A)$/.test(el.tagName)) { e.preventDefault(); el.click(); }
+    return;
+  }
+  if (typing || top || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openCarForm(); }
+  if (e.key === '/') {
+    e.preventDefault();
+    const s = $('#f-q') || $('#tax-q') || $('#detail-q');
+    if (s) s.focus(); else { location.hash = '#/collection'; setTimeout(() => $('#f-q') && $('#f-q').focus(), 80); }
+  }
+});
+
+const onSearch = debounce(() => refreshResults(), 110);
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'f-q') { UI.filters.q = t.value; onSearch(); }
+  else if (t.id === 'tax-q') { UI.taxQ[t.dataset.kind] = t.value; onSearch(); }
+  else if (t.id === 'detail-q') { UI.detailQ = t.value; onSearch(); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'f-brand') { UI.filters.brand = t.value; refreshResults(); }
+  else if (t.id === 'f-category') { UI.filters.category = t.value; refreshResults(); }
+  else if (t.id === 'f-sort') { UI.filters.sort = t.value; refreshResults(); }
+  else if (t.id === 'set-motion') { Settings.save({ reduceMotion: t.checked }); applyTheme(); Toast.show(t.checked ? 'Motion reduced.' : 'Animations are back on.', 'info'); }
+  else if (t.id === 'fb-migrate') { Settings.save({ migrate: t.checked }); }
+  else if (t.id === 'import-file' && t.files && t.files[0]) importFile(t.files[0]);
+});
+
+/* =============================================================================
+   7. Boot
+   ============================================================================= */
+async function boot() {
+  Settings.load();
+  applyTheme();
+  renderChrome();
+  const t0 = performance.now();
+  let warn = null;
+  try { await Store.connect(Settings.data.mode); }
+  catch (err) {
+    console.warn('Falling back to LocalStorage:', err);
+    await Store.connect('local');
+    warn = `Firebase couldn’t be reached, so your vault opened from this device. ${esc(err.message || err)}`;
+  }
+  if (Store.adapter.memoryOnly) warn = 'This browser blocks storage, so changes last only until you close the tab.';
+  if (!location.hash) history.replaceState(null, '', '#/dashboard');
+  Store.subscribe(() => render(false));
+  window.addEventListener('hashchange', () => { Modal.closeAll(); render(true); });
+  const wait = Math.max(0, 700 - (performance.now() - t0));
+  setTimeout(() => {
+    $('#splash').classList.add('hide');
+    render(true);
+    if (warn) setTimeout(() => Toast.show(warn, 'warn', { duration: 8000 }), 600);
+  }, wait);
+}
+boot();
+</script>
+</body>
+</html>
